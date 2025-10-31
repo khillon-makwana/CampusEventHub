@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /CampusEventHub/
+
+# If the request is for a real file or folder, serve it normally
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Otherwise, serve index.html (React app will handle routing)
+RewriteRule ^ index.html [L]

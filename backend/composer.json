@@ -1,0 +1,12 @@
+{
+  "name": "eventhub/backend",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "require": {
+    "phpmailer/phpmailer": "^6.8",
+    "vlucas/phpdotenv": "^5.5"
+  }
+}
