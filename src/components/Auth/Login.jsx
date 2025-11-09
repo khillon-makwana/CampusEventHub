@@ -1,3 +1,4 @@
+// src/components/Auth/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -5,32 +6,41 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
   const nav = useNavigate();
 
   async function submit(e) {
     e.preventDefault();
     setMsg(null);
+    setLoading(true);
 
     try {
       const res = await fetch("http://localhost/CampusEventHub/backend/api/auth/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ Send cookies/session
         body: JSON.stringify({ email, password })
       });
 
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || `HTTP error! status: ${res.status}`);
+      }
 
       const data = await res.json();
 
       if (data.success) {
-        setMsg('Login successful!');
-        nav('/dashboard');
+        setMsg('Login successful! Redirecting...');
+        // Wait a moment for session to be set
+        setTimeout(() => nav('/dashboard'), 500);
       } else {
         setMsg(data.error || 'Login failed');
       }
     } catch (err) {
       console.error(err);
-      setMsg('Something went wrong');
+      setMsg(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -62,6 +72,7 @@ export default function Login() {
                       onChange={e => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       required
+                      disabled={loading}
                     />
                   </div>
                   <div className="mb-3">
@@ -73,6 +84,7 @@ export default function Login() {
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       required
+                      disabled={loading}
                     />
                   </div>
 
@@ -87,7 +99,18 @@ export default function Login() {
                     </a>
                   </div>
 
-                  <button type="submit" className="btn btn-primary w-100 mb-3">Login</button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary w-100 mb-3"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Logging in...
+                      </>
+                    ) : 'Login'}
+                  </button>
 
                   {/* New user register link */}
                   <div className="text-center">

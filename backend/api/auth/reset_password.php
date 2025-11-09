@@ -64,3 +64,4 @@ $userModel->updatePassword((int)$user['id'], $passwordHash);
 $prModel->deleteById((int)$record['id']);
 
 echo json_encode(['success' => true, 'message' => 'Password updated']);
+

@@ -27,3 +27,4 @@ class EmailVerification {
         return $stmt->execute([$id]);
     }
 }
+

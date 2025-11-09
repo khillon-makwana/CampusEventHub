@@ -36,3 +36,4 @@ $dotenv->load();
 $frontend = str_replace('/backend', '', rtrim($_ENV['APP_URL'], '/'));
 header('Location: ' . $frontend . '/verify-email?success=1');
 exit;
+

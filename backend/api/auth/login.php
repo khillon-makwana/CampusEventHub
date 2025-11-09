@@ -36,3 +36,4 @@ $safe = [
 ];
 
 echo json_encode(['success' => true, 'user' => $safe]);
+

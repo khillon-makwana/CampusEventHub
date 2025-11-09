@@ -1,0 +1,443 @@
+/* src/components/Events/MyEvents.css */
+
+/* * Colors and Gradients from your project's style guide
+ */
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #7C3AED;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-info: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    --gradient-dark: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-large: 0 20px 50px rgba(0, 0, 0, 0.15);
+    --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+
+/* My Events Specific Styles */
+.my-events-hero {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.status-upcoming {
+    background: var(--gradient-success);
+    color: white;
+}
+
+.status-ongoing {
+    background: var(--gradient-info); /* Using info for the blue */
+    color: white;
+}
+
+.status-draft {
+    background: var(--gradient-dark);
+    color: white;
+}
+
+.status-completed {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.status-cancelled {
+    background: var(--gradient-danger);
+    color: white;
+}
+
+.event-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition-smooth);
+    border: none;
+    height: 100%;
+    position: relative;
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: var(--transition-smooth);
+    transform-origin: left;
+    z-index: 2;
+}
+
+.event-card:hover::before {
+    transform: scaleX(1);
+}
+
+.event-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-large) !important;
+}
+
+.event-image {
+    height: 200px;
+    object-fit: cover;
+    transition: var(--transition-smooth);
+}
+
+.event-card:hover .event-image {
+    transform: scale(1.1);
+}
+
+.event-status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+    box-shadow: var(--shadow-soft);
+    animation: pulse 2s infinite;
+}
+
+.event-actions {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: var(--transition-smooth);
+}
+
+.event-card:hover .event-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
+}
+
+.filter-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    border: 2px solid transparent;
+}
+
+.filter-tab:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.filter-tab.active {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.quick-action-card {
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    transition: var(--transition-bounce);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px) scale(1.05);
+    color: white;
+}
+
+.event-meta {
+    font-size: 0.875rem;
+}
+
+.event-meta i {
+    width: 16px;
+    text-align: center;
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.category-tag {
+    display: inline-block;
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    margin: 0.1rem;
+    transition: var(--transition-smooth);
+}
+
+.category-tag:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.attendee-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.attendee-count i {
+    color: var(--primary-color);
+}
+
+.event-grid {
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out 0.4s forwards;
+}
+
+.event-item {
+    animation: staggerFadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+/* --- THIS IS THE CHANGED BLOCK --- */
+.action-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 columns */
+    gap: 0.5rem;
+}
+
+.action-buttons-grid .btn {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+}
+/* --- END OF CHANGE --- */
+
+@keyframes staggerFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .my-events-hero {
+        padding: 2rem 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    .event-grid .col {
+        animation-delay: calc(var(--index) * 0.1s) !important;
+    }
+    
+    /* Make the grid 2 columns on mobile */
+    .action-buttons-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/*
+ * Better Event Card Buttons
+ */
+.event-actions .btn {
+    font-size: 0.8rem; /* A bit larger */
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    border: 2px solid transparent; /* Set up for outlines */
+}
+
+.event-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Primary Button (View) */
+.btn-card-view {
+    background: var(--gradient-primary);
+    color: white;
+}
+.btn-card-view:hover {
+    background: var(--gradient-secondary);
+    color: white;
+    box-shadow: var(--shadow-medium);
+}
+
+/* Secondary Button (Edit) */
+.btn-card-edit {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-card-edit:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Success Button (Manage RSVP, Publish) */
+.btn-card-success {
+    background: transparent;
+    color: #10b981;
+    border-color: #10b981;
+}
+.btn-card-success:hover {
+    background: var(--gradient-success);
+    color: white;
+    border-color: #10b981;
+}
+
+/* Warning Button (Manage Tickets, Start Event) */
+.btn-card-warning {
+    background: transparent;
+    color: #d97706;
+    border-color: #d97706;
+}
+.btn-card-warning:hover {
+    background: #d97706;
+    color: white;
+}
+
+/* Danger Button (Cancel) */
+.btn-card-danger {
+    background: transparent;
+    color: #ef4444;
+    border-color: #ef4444;
+}
+.btn-card-danger:hover {
+    background: var(--gradient-danger);
+    color: white;
+    border-color: #ef4444;
+}
+
+/* Info Button (Complete Event) */
+.btn-card-info {
+    background: transparent;
+    color: #3b82f6;
+    border-color: #3b82f6;
+}
+.btn-card-info:hover {
+    background: var(--gradient-info);
+    color: white;
+    border-color: #3b82f6;
+}
+
+/* Remove old ticket button style */
+.btn-outline-ticket {
+    display: none; 
+}

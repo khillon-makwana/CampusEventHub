@@ -41,3 +41,4 @@ class User {
         return $stmt->execute([$passwordHash, $id]);
     }
 }
+

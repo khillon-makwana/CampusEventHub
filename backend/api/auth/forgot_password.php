@@ -47,3 +47,4 @@ $body = "<p>Hi,</p><p>Click the link below to reset your password (valid 1 hour)
 $mailer->send($email, $user['fullname'], $subject, $body);
 
 echo json_encode(['success' => true, 'message' => 'If that email exists you will receive reset instructions']);
+

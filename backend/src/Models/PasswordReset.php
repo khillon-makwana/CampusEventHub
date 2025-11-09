@@ -27,3 +27,4 @@ class PasswordReset {
         return $stmt->execute([$id]);
     }
 }
+

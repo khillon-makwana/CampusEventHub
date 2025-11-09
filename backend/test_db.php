@@ -4,7 +4,8 @@ use App\Config\Database;
 
 try {
     $db = Database::getConnection();
-    echo "✅ Database connection successful!";
+    echo "âœ… Database connection successful!";
 } catch (Exception $e) {
-    echo "❌ Connection failed: " . $e->getMessage();
+    echo "âŒ Connection failed: " . $e->getMessage();
 }
+

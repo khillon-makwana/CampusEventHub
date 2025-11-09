@@ -1,0 +1,98 @@
+/* src/components/Tickets/PaymentStatus.css */
+
+/* * Colors and Gradients from your project's style guide
+ */
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #7C3AED;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* Animation from original file */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.payment-container {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    /* --- CHANGED: Use light background --- */
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 3rem 0;
+}
+.payment-card { 
+    border: none; 
+    border-radius: 20px; 
+    overflow: hidden; 
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2); 
+    animation: fadeInUp 0.6s ease-out;
+}
+.payment-header { 
+    background: var(--gradient-primary); /* Use purple */
+    color: #fff; 
+    padding: 1.5rem; 
+    display:flex; 
+    align-items:center; 
+    gap:1rem; 
+}
+.mpesa-logo { 
+    width:48px; 
+    height:48px; 
+    background: rgba(255,255,255,0.2); 
+    border-radius: 12px; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    font-size: 1.5rem; 
+}
+.payment-body { padding: 2rem; background: #fff; }
+.info-banner { 
+    background: #f8f9ff; 
+    border: 1px solid #e2e8ff; 
+    border-radius: 12px; 
+    padding: 1rem 1.25rem; 
+    margin-bottom:1rem; 
+}
+/* Use primary color for info icon */
+.info-banner h5 i {
+    color: var(--primary-color);
+}
+.details-section { border-top: 1px dashed #eaeaea; padding-top: 1rem; margin-top: 1rem; }
+.detail-row { display:flex; align-items:center; justify-content:space-between; padding: .5rem 0; }
+.detail-label { color:#6b7280; }
+.amount-highlight { 
+    font-weight: 700; 
+    color: #155724; /* Kept dark green for money */
+    background: #d4edda;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+.action-buttons { margin-top: 1rem; }
+.btn-action { border-radius: 12px; padding:.75rem 1rem; font-weight:600; }
+
+/* Kept success button as green */
+.btn-success-custom { 
+    background: #10b981; 
+    border-color:#10b981; 
+}
+.btn-secondary-custom { background: #e5e7eb; border-color:#e5e7eb; color:#111827; }
+.security-notice { margin-top: 1rem; color:#6b7280; }
+.security-notice i { color: var(--primary-color); } /* Use purple */
+
+.transaction-code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
