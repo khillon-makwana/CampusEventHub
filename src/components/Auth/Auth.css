@@ -1,0 +1,186 @@
+/* src/components/Auth/Auth.css */
+
+/* --- Import Project Variables --- */
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #7C3AED;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-dark: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    --text-dark: #2d3748;
+    --text-light: #718096;
+    --bg-light: #f7fafc;
+    --border-light: #e2e8f0;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-large: 0 20px 50px rgba(0, 0, 0, 0.15);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Page Wrapper --- */
+.auth-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.auth-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    /* --- THEME CHANGE: Use light background --- */
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem 0;
+}
+
+/* --- Auth Card (White) --- */
+.auth-card {
+    /* --- THEME CHANGE: White card --- */
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-large);
+    padding: 3rem;
+    animation: fadeInUp 0.6s ease-out;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.auth-logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 2.5rem;
+    /* --- THEME CHANGE: Gradient text --- */
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-header {
+    color: var(--text-dark); /* Dark text */
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* --- Form Elements --- */
+.form-label {
+    color: var(--text-dark); /* Dark text */
+    font-weight: 500;
+}
+
+.auth-input {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-light); /* Light border */
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+    background: var(--bg-light); /* Light background */
+    color: var(--text-dark); /* Dark text */
+    box-shadow: none;
+}
+.auth-input::placeholder {
+    color: var(--text-light);
+}
+.auth-input:focus {
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    outline: none;
+    color: var(--text-dark);
+}
+
+.auth-button {
+    /* --- THEME CHANGE: Purple gradient button --- */
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    color: white;
+    transition: var(--transition-medium);
+    box-shadow: var(--shadow-medium);
+}
+
+.auth-button:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: var(--shadow-large);
+}
+
+.auth-button:disabled {
+    opacity: 0.7;
+}
+
+.auth-link {
+    color: var(--primary-color); /* Purple text */
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+/* --- Footer (Matches Landing Page) --- */
+.auth-footer {
+    background: #1a202c; /* Dark charcoal */
+    color: #e2e8f0;
+    padding: 3.5rem 2rem;
+    font-size: 0.95rem;
+}
+
+.auth-footer h3 {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.8rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-footer p {
+    color: #a0aec0; /* Lighter text */
+}
+
+.auth-footer a {
+    color: #cbd5e0;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.auth-footer a:hover {
+    color: var(--primary-color);
+}
+
+.auth-footer .social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1.2rem;
+    transition: var(--transition-medium);
+    text-decoration: none;
+}
+.auth-footer .social-icon:hover {
+    background: var(--gradient-primary);
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: var(--shadow-md);
+}

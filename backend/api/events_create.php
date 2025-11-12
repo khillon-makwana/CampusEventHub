@@ -4,6 +4,7 @@ require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
+use App\Models\User; // <-- 1. IMPORT USER MODEL
 
 session_start();
 
@@ -17,12 +18,24 @@ if (!isset($_SESSION['user_id'])) {
 $pdo = Database::getConnection();
 $user_id = (int)$_SESSION['user_id'];
 
-// 2. HANDLE 'GET' REQUEST (Fetch Categories for form)
+// 2. HANDLE 'GET' REQUEST (Fetch Categories AND User)
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
+        // --- 2a. GET USER (This was missing) ---
+        $userModel = new User();
+        $user = $userModel->findById($user_id);
+        
+        // --- 2b. GET CATEGORIES ---
         $stmt = $pdo->query("SELECT id, name FROM attendee_category ORDER BY name");
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode(['success' => true, 'categories' => $categories]);
+        
+        // --- 2c. SEND BOTH ---
+        echo json_encode([
+            'success' => true, 
+            'categories' => $categories,
+            'user' => $user // <-- ADDED USER
+        ]);
+
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
@@ -126,8 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $pdo->commit();
-
-        // (Notification logic from your old file can be triggered here if needed)
 
         echo json_encode(['success' => true, 'message' => 'Event created successfully!', 'event_id' => $event_id]);
         

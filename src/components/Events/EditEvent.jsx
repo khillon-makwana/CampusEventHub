@@ -1,9 +1,10 @@
 // src/components/Events/EditEvent.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { apiGet, apiPostFormData } from '../../api';
 import Layout from '../Layout';
-import './Events.css'; // Uses the same CSS as the CreateEvent page
+import './EventForm.css'; // <-- 1. IMPORT THE NEW SHARED CSS
 
 export default function EditEvent() {
     const navigate = useNavigate();
@@ -20,14 +21,16 @@ export default function EditEvent() {
         status: 'draft',
     });
     const [category_ids, setCategoryIds] = useState([]);
-    const [event_image, setEventImage] = useState(null);
+    const [event_image, setEventImage] = useState(null); // New image file
+    const [imagePreview, setImagePreview] = useState(null); // Preview for new image
     const [remove_image, setRemoveImage] = useState(false);
-    const [existingImage, setExistingImage] = useState(null);
+    const [existingImage, setExistingImage] = useState(null); // URL of current image
     const [availableTickets, setAvailableTickets] = useState(0);
 
     // Page state
     const [allCategories, setAllCategories] = useState([]);
     const [user, setUser] = useState(null);
+    const [unreadCount, setUnreadCount] = useState(0); // 2. Add unread count state
     const [loading, setLoading] = useState(true);
     const [formErrors, setFormErrors] = useState({});
     const [generalError, setGeneralError] = useState(null);
@@ -36,7 +39,6 @@ export default function EditEvent() {
     const formatDateTimeLocal = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        // Adjust for timezone offset
         date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
         return date.toISOString().slice(0, 16);
     };
@@ -47,7 +49,7 @@ export default function EditEvent() {
             try {
                 const data = await apiGet(`events_edit.php?id=${id}`);
                 if (data.success) {
-                    const { event, selected_categories, all_categories, user } = data;
+                    const { event, selected_categories, all_categories, user, unread_count } = data;
                     
                     setFormData({
                         title: event.title,
@@ -58,16 +60,17 @@ export default function EditEvent() {
                         ticket_price: event.ticket_price,
                         status: event.status,
                     });
-                    setCategoryIds(selected_categories.map(Number)); // Ensure they are numbers
+                    setCategoryIds(selected_categories.map(Number));
                     setExistingImage(event.image);
                     setAvailableTickets(event.available_tickets);
                     setAllCategories(all_categories);
                     setUser(user);
-                    setLoading(false);
+                    setUnreadCount(unread_count || 0); // 3. Set unread count
                 }
             } catch (err) {
                 console.error(err);
                 setGeneralError(err.message || 'Failed to load event data.');
+            } finally {
                 setLoading(false);
             }
         };
@@ -93,10 +96,13 @@ export default function EditEvent() {
     // Handle file input change
     const handleFileChange = (e) => {
         if (e.target.files.length > 0) {
-            setEventImage(e.target.files[0]);
-            setRemoveImage(false); // Uncheck "remove" if a new file is added
+            const file = e.target.files[0];
+            setEventImage(file);
+            setImagePreview(URL.createObjectURL(file)); // Set new preview
+            setRemoveImage(false);
         } else {
             setEventImage(null);
+            setImagePreview(null);
         }
     };
 
@@ -104,36 +110,31 @@ export default function EditEvent() {
     const handleRemoveImageChange = (e) => {
         setRemoveImage(e.target.checked);
         if (e.target.checked) {
-            setEventImage(null); // Clear any staged file
+            setEventImage(null);
+            setImagePreview(null);
         }
     };
 
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setLoading(true); // Use 'loading' for form submission
         setFormErrors({});
         setGeneralError(null);
 
         const postData = new FormData();
-        // Append all form data
         Object.keys(formData).forEach(key => {
             postData.append(key, formData[key]);
         });
-
-        // Append category IDs
         category_ids.forEach(catId => {
             postData.append('category_ids[]', catId);
         });
-
-        // Append image logic
         if (event_image) {
             postData.append('event_image', event_image);
         }
         postData.append('remove_image', remove_image);
         
         try {
-            // POST to the same URL, but with id in query string
             const data = await apiPostFormData(`events_edit.php?id=${id}`, postData);
             if (data.success) {
                 navigate('/my-events'); // Redirect on success
@@ -146,13 +147,23 @@ export default function EditEvent() {
                 setGeneralError(err.message || 'An unexpected error occurred.');
             }
         } finally {
-            setLoading(false);
+            setLoading(false); // Stop 'loading'
         }
     };
     
-    if (loading) {
+    // Animation Variants
+    const cardVariants = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            transition: { type: 'spring', stiffness: 100, damping: 20, delay: 0.1 }
+        }
+    };
+
+    if (loading && !user) { // Show full page loader only on initial load
         return (
-            <Layout user={user}>
+            <Layout user={user} unread_count={unreadCount}>
                 <div className="container mt-4 text-center">
                     <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Loading...</span>
@@ -164,15 +175,26 @@ export default function EditEvent() {
     }
 
     return (
-        <Layout user={user}>
+        <Layout user={user} unread_count={unreadCount}>
             <div className="container mt-4">
                 <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="card form-card animate-fade-in">
-                            <div className="card-header form-card-header text-white">
+                    <div className="col-md-10 col-lg-8">
+                        
+                        <motion.div 
+                            className="card event-form-card"
+                            variants={cardVariants}
+                            initial="hidden"
+                            animate="visible"
+                            whileHover={{ 
+                                transform: 'perspective(1000px) scale(1.01)',
+                                boxShadow: 'var(--shadow-large)' 
+                            }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        >
+                            <div className="card-header event-form-header text-white">
                                 <h4 className="mb-0">Edit Event</h4>
                             </div>
-                            <div className="card-body form-card-body">
+                            <div className="card-body event-form-body">
                                 
                                 {generalError && (
                                     <div className="alert alert-danger">{generalError}</div>
@@ -210,13 +232,13 @@ export default function EditEvent() {
 
                                     <div className="mb-3">
                                         <label className="form-label">Event Categories *</label>
-                                        <div className={`border rounded p-3 ${formErrors.category_ids ? 'is-invalid' : ''}`} style={{ borderColor: formErrors.category_ids ? '#dc3545' : 'var(--border-color)' }}>
+                                        <div className={`category-checkbox-group ${formErrors.category_ids ? 'is-invalid' : ''}`}>
                                             {allCategories.map(cat => (
                                                 <div className="form-check" key={cat.id}>
-                                                    <input className="form-check-input" type="checkbox" name="category_ids[]" value={cat.id}
+                                                    <input className="form-check-input" type="checkbox" id={`cat-${cat.id}`} value={cat.id}
                                                         checked={category_ids.includes(cat.id)}
                                                         onChange={handleCategoryChange} />
-                                                    <label className="form-check-label">{cat.name}</label>
+                                                    <label className="form-check-label" htmlFor={`cat-${cat.id}`}>{cat.name}</label>
                                                 </div>
                                             ))}
                                         </div>
@@ -251,39 +273,62 @@ export default function EditEvent() {
 
                                     <div className="mb-3">
                                         <label className="form-label">Event Image</label>
+                                        {/* Show new preview, or existing image */}
+                                        <div className="mb-2">
+                                            {imagePreview ? (
+                                                <img src={imagePreview} className="img-thumbnail" style={{ maxHeight: '150px' }} alt="New preview" />
+                                            ) : (
+                                                existingImage && !remove_image && (
+                                                    <img src={`http://localhost/CampusEventHub/${existingImage}`}
+                                                        className="img-thumbnail" style={{ maxHeight: '150px' }} alt="Current event" />
+                                                )
+                                            )}
+                                        </div>
+                                        
                                         {existingImage && (
-                                            <div className="mb-2">
-                                                <img src={`http://localhost/CampusEventHub/${existingImage}`} // Assuming this base URL
-                                                    className="img-thumbnail" style={{ maxHeight: '150px' }} alt="Current event" />
-                                                <div className="form-check mt-2">
-                                                    <input className="form-check-input" type="checkbox" name="remove_image" id="remove_image"
-                                                        checked={remove_image} onChange={handleRemoveImageChange} />
-                                                    <label className="form-check-label" htmlFor="remove_image">Remove current image</label>
-                                                </div>
+                                            <div className="form-check mb-2">
+                                                <input className="form-check-input" type="checkbox" id="remove_image"
+                                                    checked={remove_image} onChange={handleRemoveImageChange} />
+                                                <label className="form-check-label" htmlFor="remove_image">Remove current image</label>
                                             </div>
                                         )}
+                                        
                                         <input type="file" name="event_image" className={`form-control ${formErrors.event_image ? 'is-invalid' : ''}`}
                                             onChange={handleFileChange} accept="image/jpeg,image/png,image/gif,image/webp" />
                                         <div className="form-text">Max file size: 5MB. Allowed types: JPG, PNG, GIF, WebP</div>
                                         {formErrors.event_image && <div className="invalid-feedback error-message d-block">{formErrors.event_image}</div>}
                                     </div>
 
-                                    <div className="d-flex justify-content-end">
-                                        <button type="button" className="btn btn-secondary me-2" onClick={() => navigate('/my-events')} disabled={loading}>
+                                    <div className="d-flex justify-content-end gap-2 mt-4">
+                                        <motion.button 
+                                            type="button" 
+                                            className="btn btn-form-secondary" 
+                                            onClick={() => navigate('/my-events')} 
+                                            disabled={loading}
+                                            whileHover={{ y: -2 }}
+                                        >
                                             Cancel
-                                        </button>
-                                        <button type="submit" name="update_event" className="btn btn-primary" disabled={loading}>
+                                        </motion.button>
+                                        <motion.button 
+                                            type="submit" 
+                                            name="update_event" 
+                                            className="btn btn-form-primary" 
+                                            disabled={loading}
+                                            whileHover={{ y: -2 }}
+                                        >
                                             {loading ? (
                                                 <>
                                                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                                     Updating...
                                                 </>
-                                            ) : 'Update Event'}
-                                        </button>
+                                            ) : (
+                                                <><i className="fas fa-save me-2"></i>Update Event</>
+                                            )}
+                                        </motion.button>
                                     </div>
                                 </form>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>

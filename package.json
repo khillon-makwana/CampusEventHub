@@ -13,11 +13,14 @@
     "@fortawesome/fontawesome-free": "^7.1.0",
     "animate.css": "^4.1.1",
     "bootstrap": "^5.3.8",
+    "framer-motion": "^12.23.24",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3",
+    "lucide-react": "^0.553.0",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",
+    "react-intersection-observer": "^10.0.0",
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {

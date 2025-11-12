@@ -24,13 +24,14 @@ import ViewTicket from './components/Tickets/ViewTicket';
 // --- IMPORT NEW PAYMENT FLOW COMPONENTS ---
 import PurchaseTicket from './components/Tickets/PurchaseTicket';
 import PaymentStatus from './components/Tickets/PaymentStatus';
-
+import LandingPage from './components/Landing/LandingPage';
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

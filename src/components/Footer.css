@@ -1,0 +1,109 @@
+/* src/components/Footer.css */
+
+/* --- Root Variables (from your theme) --- */
+:root {
+    --primary-color: #4F46E5;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-dark: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.main-footer {
+    background: var(--gradient-dark);
+    position: relative;
+    overflow: hidden;
+    color: #cbd5e0; /* Default text color */
+}
+
+/* Animated purple top border */
+.main-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.footer-logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.8rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.footer-slogan {
+    font-size: 0.9rem;
+    color: #a0aec0; /* text-secondary equivalent */
+}
+
+.footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.footer-link {
+    color: #cbd5e0 !important;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    position: relative;
+}
+
+.footer-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    transition: var(--transition-smooth);
+    transform: translateX(-50%);
+}
+
+.footer-link:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.footer-link:hover::before {
+    width: 80%;
+}
+
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e0;
+    transition: var(--transition-bounce);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-icon:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-3px) rotate(8deg);
+    box-shadow: var(--shadow-medium);
+    border-color: transparent;
+}
+
+.footer-copyright {
+    font-size: 0.85rem;
+    color: #a0aec0; /* text-secondary equivalent */
+}

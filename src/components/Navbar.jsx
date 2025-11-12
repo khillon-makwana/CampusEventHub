@@ -1,246 +1,152 @@
 // src/components/Navbar.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { apiPost } from '../api';
+import './Navbar.css'; // Import the new CSS
 
-export default function Navbar({ user }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [unreadCount] = useState(0); // TODO: Fetch from notifications API
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.pageYOffset > 100);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await apiPost('auth/logout.php', {});
-      navigate('/login');
-    } catch (err) {
-      console.error('Logout failed:', err);
-      // Force navigation even if API fails
-      navigate('/login');
-    }
-  };
-
-  const isActive = (path) => location.pathname === path;
-
-  return (
-    <>
-      <header className={`main-header w-100 ${scrolled ? 'scrolled' : ''}`}>
-        <div className="container-fluid px-4 py-3">
-          <div className="d-flex justify-content-between align-items-center">
-            {/* Logo on the left */}
-            <div className="brand-section">
-              <a href="/dashboard" className="text-decoration-none">
-                <h1 className="brand-logo mb-0">
-                  <i className="fas fa-calendar-star me-2"></i>EventHub
-                </h1>
-              </a>
-            </div>
-
-            {/* Navigation centered */}
-            <nav className="d-none d-md-block mx-auto">
-              <ul className="nav mb-0 justify-content-center">
-                <li className="nav-item">
-                  <a 
-                    href="/dashboard" 
-                    className={`nav-link nav-link-custom ${isActive('/dashboard') ? 'active' : ''}`}
-                  >
-                    <i className="fas fa-home me-2"></i>HOME
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a 
-                    href="/events" 
-                    className={`nav-link nav-link-custom ${isActive('/events') ? 'active' : ''}`}
-                  >
-                    <i className="fas fa-calendar-alt me-2"></i>EVENTS
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a 
-                    href="/my-events" 
-                    className={`nav-link nav-link-custom ${isActive('/my-events') ? 'active' : ''}`}
-                  >
-                    <i className="fas fa-list me-2"></i>MY EVENTS
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a 
-                    href="/profile" 
-                    className={`nav-link nav-link-custom ${isActive('/profile') ? 'active' : ''}`}
-                  >
-                    <i className="fas fa-user me-2"></i>MY PROFILE
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a 
-                    href="/tickets" 
-                    className={`nav-link nav-link-custom ${isActive('/tickets') ? 'active' : ''}`}
-                  >
-                    <i className="fas fa-ticket-alt me-2"></i>TICKETS
-                  </a>
-                </li>
-              </ul>
-            </nav>
-
-            {/* User info and sign out on the right */}
-            <div className="user-section d-flex align-items-center gap-3">
-              {/* Notifications Icon */}
-              <a 
-                href="/notifications" 
-                className={`nav-link position-relative p-0 me-2 ${isActive('/notifications') ? 'active' : ''}`}
-              >
-                <i className="fas fa-bell fa-lg text-muted"></i>
-                {unreadCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
-                    {unreadCount}
-                  </span>
+// --- Reusable NavLink Component ---
+// This new component handles the sliding animation
+const NavLink = ({ to, path, icon, children }) => {
+    const isActive = to === path;
+    return (
+        <li className="nav-item">
+            <Link to={to} className={`nav-link nav-link-custom ${isActive ? 'active' : ''}`}>
+                <motion.div
+                    className="d-flex align-items-center"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                >
+                    <i className={`fas ${icon} me-2`}></i>
+                    {children}
+                </motion.div>
+                {isActive && (
+                    <motion.span
+                        className="active-indicator"
+                        layoutId="active-nav-indicator"
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
                 )}
-              </a>
+            </Link>
+        </li>
+    );
+};
 
-              <div className="d-flex align-items-center gap-2">
-                <i className="fas fa-user-circle fa-lg text-primary"></i>
-                <span className="fw-medium">{user?.fullname || 'Guest'}</span>
-              </div>
-              <button onClick={handleLogout} className="btn sign-out-btn">
-                <i className="fas fa-sign-out-alt me-2"></i>Sign Out
-              </button>
-            </div>
-          </div>
+// --- Reusable Avatar Component ---
+const Avatar = ({ user }) => {
+    const initials = user?.fullname
+        ? user.fullname
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+        : 'G';
+    
+    return (
+        <div className="user-avatar">
+            {initials}
         </div>
-      </header>
+    );
+};
 
-      {/* *** FIX: Changed <style jsx> to <style> *** */}
-      <style>{`
-        .main-header {
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
-          border-bottom: 1px solid rgba(229, 231, 235, 0.8);
-          backdrop-filter: blur(20px);
-          position: sticky;
-          top: 0;
-          z-index: 1000;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+// --- Main Navbar Component ---
+export default function Navbar({ user, unread_count }) {
+    const [scrolled, setScrolled] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    
+    // Get the current path (e.g., "/dashboard")
+    const currentPath = location.pathname;
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.pageYOffset > 50); // Changed to 50px
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await apiPost('auth/logout.php', {});
+            navigate('/login');
+        } catch (err) {
+            console.error('Logout failed:', err);
+            navigate('/login');
         }
-        .main-header.scrolled {
-          background: rgba(255, 255, 255, 0.98);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        }
-        .brand-logo {
-          font-family: 'Pacifico', cursive;
-          font-size: 1.8rem;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .brand-logo:hover {
-          transform: scale(1.05);
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .nav-link-custom {
-          color: #374151 !important;
-          font-weight: 500;
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          position: relative;
-          padding: 0.75rem 1.25rem !important;
-          border-radius: 12px;
-          margin: 0 0.25rem;
-        }
-        .nav-link-custom::before {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          width: 0;
-          height: 3px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          transform: translateX(-50%);
-          border-radius: 3px;
-        }
-        .nav-link-custom:hover {
-          color: #4F46E5 !important;
-          background: rgba(79, 70, 229, 0.05);
-          transform: translateY(-2px);
-        }
-        .nav-link-custom:hover::before {
-          width: 60%;
-        }
-        .nav-link-custom.active {
-          color: #4F46E5 !important;
-          font-weight: 600;
-          background: rgba(79, 70, 229, 0.08);
-        }
-        .nav-link-custom.active::before {
-          width: 60%;
-        }
-        .user-section {
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          padding: 0.75rem 1rem;
-          border-radius: 16px;
-          background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(124, 58, 237, 0.05) 100%);
-          border: 1px solid rgba(79, 70, 229, 0.1);
-        }
-        .user-section:hover {
-          background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(124, 58, 237, 0.08) 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-        .notification-badge {
-          font-size: 0.65rem;
-          padding: 0.25em 0.5em;
-          animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        .sign-out-btn {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: #ffffff;
-          border: none;
-          border-radius: 12px;
-          padding: 0.6rem 1.4rem;
-          font-size: 0.9rem;
-          font-weight: 600;
-          transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-          position: relative;
-          overflow: hidden;
-        }
-        .sign-out-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .sign-out-btn:hover {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-          transform: translateY(-3px) scale(1.05);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-          color: #ffffff;
-        }
-        .sign-out-btn:hover::before {
-          left: 100%;
-        }
-      `}</style>
-    </>
-  );
+    };
+
+    // Animation for the header sliding in
+    const headerVariants = {
+        hidden: { y: -100, opacity: 0 },
+        visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100, damping: 20 } }
+    };
+
+    return (
+        <motion.header 
+            className={`main-header w-100 ${scrolled ? 'scrolled' : ''}`}
+            variants={headerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <div className="container-fluid px-4 py-3">
+                <div className="d-flex justify-content-between align-items-center">
+                    
+                    {/* Logo on the left */}
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                        <Link to="/dashboard" className="text-decoration-none brand-logo">
+                            <i className="fas fa-calendar-star me-2"></i>EventHub
+                        </Link>
+                    </motion.div>
+
+                    {/* Navigation centered */}
+                    <nav className="d-none d-md-block mx-auto">
+                        <ul className="nav mb-0 justify-content-center">
+                            <NavLink to="/dashboard" path={currentPath} icon="fa-home">HOME</NavLink>
+                            <NavLink to="/events" path={currentPath} icon="fa-calendar-alt">EVENTS</NavLink>
+                            <NavLink to="/my-events" path={currentPath} icon="fa-list">MY EVENTS</NavLink>
+                            <NavLink to="/profile" path={currentPath} icon="fa-user">MY PROFILE</NavLink>
+                            <NavLink to="/tickets" path={currentPath} icon="fa-ticket-alt">TICKETS</NavLink>
+                        </ul>
+                    </nav>
+
+                    {/* User info and sign out on the right */}
+                    <motion.div 
+                        className="user-section"
+                        whileHover={{ scale: 1.02 }}
+                    >
+                        {/* Notifications Icon */}
+                        <Link to="/notifications" className="notification-bell">
+                            <i className="fas fa-bell fa-lg"></i>
+                            <AnimatePresence>
+                                {unread_count > 0 && (
+                                    <motion.span 
+                                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge"
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0, opacity: 0 }}
+                                    >
+                                        {unread_count}
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
+                        </Link>
+
+                        <div className="user-info">
+                            <Avatar user={user} />
+                            <span className="user-name d-none d-lg-block">{user?.fullname || 'Guest'}</span>
+                        </div>
+                        <motion.button 
+                            onClick={handleLogout} 
+                            className="btn sign-out-btn"
+                            whileHover={{ scale: 1.05, boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)" }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                        >
+                            <i className="fas fa-sign-out-alt me-2"></i>Sign Out
+                        </motion.button>
+                    </motion.div>
+                </div>
+            </div>
+        </motion.header>
+    );
 }

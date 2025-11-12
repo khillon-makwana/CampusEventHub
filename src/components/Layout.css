@@ -1,0 +1,17 @@
+/* src/components/Layout.css */
+
+.layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f7fafc; /* Use a light, neutral background */
+}
+
+.main-content {
+    flex: 1 0 auto;
+    /* This padding is a good default, 
+       but individual pages can override it. */
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    position: relative; /* Needed for AnimatePresence */
+}

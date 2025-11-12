@@ -1,0 +1,177 @@
+/* src/components/Navbar.css */
+
+/* --- Root Variables (from your theme) --- */
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #7C3AED;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --text-dark: #2d3748;
+    --text-light: #718096;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Main Header (Glassmorphism) --- */
+.main-header {
+    /* This is the "glass" effect. It's semi-transparent white 
+      with a backdrop-filter to blur content behind it.
+    */
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* On-scroll, it becomes more opaque */
+.main-header.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--shadow-soft);
+}
+
+/* --- Brand Logo --- */
+.brand-logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.8rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: var(--transition-medium);
+}
+
+/* --- Navigation Links --- */
+.nav-link-custom {
+    color: var(--text-light) !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    transition: var(--transition-fast);
+    position: relative;
+    padding: 0.75rem 1.25rem !important;
+    border-radius: var(--radius-md);
+    margin: 0 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link-custom i {
+    opacity: 0.8;
+}
+
+.nav-link-custom:hover {
+    color: var(--text-dark) !important;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.nav-link-custom.active {
+    color: var(--primary-color) !important;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* This is the sliding active indicator. 
+  Framer Motion will animate its `layoutId`.
+*/
+.active-indicator {
+    position: absolute;
+    bottom: -1px; /* Sits just above the header's border */
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+}
+
+/* --- User Section --- */
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(240, 240, 240, 0.6);
+    border-radius: 9999px;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    transition: var(--transition-medium);
+}
+.user-section:hover {
+    background: rgba(220, 220, 220, 0.8);
+    box-shadow: var(--shadow-soft);
+}
+
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: var(--transition-fast);
+}
+.notification-bell:hover {
+    color: var(--text-dark);
+}
+.notification-badge {
+    font-size: 0.65rem;
+    padding: 0.25em 0.5em;
+    animation: pulse 2s infinite;
+    position: absolute;
+    top: 0;
+    right: -5px;
+    transform: translate(50%, -50%);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1) translate(50%, -50%); }
+    50% { transform: scale(1.1) translate(50%, -50%); }
+    100% { transform: scale(1) translate(50%, -50%); }
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* A premium avatar instead of an icon */
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.sign-out-btn {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition-medium);
+    box-shadow: var(--shadow-soft);
+}
+.sign-out-btn:hover {
+    background: var(--gradient-secondary);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-medium);
+    color: white;
+}

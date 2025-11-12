@@ -1,132 +1,334 @@
 /* src/components/Events/Events.css */
 
-/* :root definitions are often in index.css, but we place them here
-   for this component's scope as per your original file. 
-   Consider moving them to a global index.css file. */
+/* --- Root Variables (from your theme) --- */
 :root {
-    --primary-color: #8b5cf6;
-    --primary-light: #a78bfa;
-    --primary-dark: #7c3aed;
-    --success-color: #10b981;
-    --error-color: #ef4444;
-    --text-color: #374151;
-    --border-color: #e5e7eb;
-    --bg-color: #f9fafb;
+    --primary-color: #4F46E5;
+    --primary-hover: #7C3AED;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --text-dark: #2d3748;
+    --text-light: #718096;
+    --bg-light: #f7fafc;
+    --border-light: #e2e8f0;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-large: 0 20px 50px rgba(0, 0, 0, 0.15);
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* This style is for the CREATE EVENT page */
-.form-card {
-    border: none;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* --- Base Animations --- */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity var(--transition-slow), transform var(--transition-slow);
+}
+.animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.form-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(139, 92, 246, 0.1);
+/* --- Page Structure --- */
+.events-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 2rem;
 }
 
-.form-card-header {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+/* --- Hero Section --- */
+.events-hero {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+}
+.stats-card {
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
+    text-align: center;
+    transition: var(--transition-medium);
+}
+.stats-card:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-medium);
+}
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+.stats-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
 }
 
-.form-card-body {
+/* --- Filter Card --- */
+.filter-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-light);
     padding: 2rem;
 }
+.filter-card .form-control,
+.filter-card .form-select {
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-light);
+    padding: 0.75rem 1rem;
+    transition: var(--transition-fast);
+}
+.filter-card .form-control:focus,
+.filter-card .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    outline: none;
+}
+.search-btn {
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1.5rem;
+    transition: var(--transition-medium);
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+}
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+.filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.filter-tag {
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition-medium);
+}
+.filter-tag:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+.filter-tag .remove {
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 0.25rem;
+}
 
-.form-label {
+/* --- Results Header --- */
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.sort-dropdown .dropdown-toggle {
+    border-radius: var(--radius-md);
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-light);
+    transition: var(--transition-medium);
+    font-weight: 500;
+}
+.sort-dropdown .dropdown-toggle:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* --- Event Card (Copied from Dashboard for consistency) --- */
+.event-card-wrapper {
+    /* This wrapper is used for the animation */
+}
+.event-card {
+    background: white;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    transition: var(--transition-smooth);
+    border: 1px solid var(--border-light);
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: var(--transition-smooth);
+    transform-origin: left;
+    z-index: 2;
+}
+.event-card:hover::before {
+    transform: scaleX(1);
+}
+.event-image {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+}
+.event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-smooth);
+}
+.event-card:hover .event-image img {
+    transform: scale(1.1);
+}
+.event-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+    color: white;
+}
+.event-image-placeholder i {
+    font-size: 3rem;
+    opacity: 0.75;
+}
+.event-status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+    color: white;
+    box-shadow: var(--shadow-soft);
+    animation: pulse 2s infinite;
+}
+.event-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+.event-title {
+    font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--text-color);
+    color: var(--text-dark);
 }
-
-/* Ensure form-controls use the new variables */
-.form-control,
-.form-select {
-    border: 2px solid var(--border-color);
+.event-description {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    flex-grow: 1;
+    margin-bottom: 1rem;
+    /* From your old .line-clamp-2 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.7rem; /* 2 lines */
+}
+.event-meta {
+    font-size: 0.875rem;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+.meta-item i {
+    color: var(--primary-color);
+    width: 16px;
+    text-align: center;
+}
+.event-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-light);
+    padding-top: 1rem;
+    margin-top: auto;
+}
+.event-actions .btn {
+    font-weight: 600;
     border-radius: 8px;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
+    transition: var(--transition-fast);
 }
-
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-}
-
-.form-check-input:checked {
+.event-actions .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
+.event-actions .btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: scale(1.05);
+}
 
-/* Ensure buttons use the new variables */
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+/* --- Pagination --- */
+.pagination-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-light);
+    padding: 2rem;
+    margin-top: 3rem;
+}
+.page-link {
     border: none;
-    border-radius: 8px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
+    border-radius: 12px !important;
+    margin: 0 0.25rem;
+    color: #6b7280;
+    font-weight: 500;
+    transition: var(--transition-smooth);
 }
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
-}
-
-.btn-secondary {
-    border-radius: 8px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
+.page-link:hover {
+    background: var(--primary-color);
+    color: white;
     transform: translateY(-2px);
 }
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.page-item.active .page-link {
+    background: var(--gradient-primary);
+    border: none;
+    transform: scale(1.1);
+    color: white;
+    box-shadow: var(--shadow-medium);
+}
+.page-item.disabled .page-link {
+    background: #f3f4f6;
+    color: #9ca3af;
 }
 
-.animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
+/* --- Empty State --- */
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    background: white;
+    border-radius: var(--radius-lg);
 }
-
-/* Error styling */
-.error-message {
-    color: var(--error-color);
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-/* Make Bootstrap's invalid-feedback use our color */
-.is-invalid {
-    border-color: var(--error-color) !important;
-}
-
-.invalid-feedback {
-    color: var(--error-color) !important;
-}
-
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .form-card-body {
-        padding: 1.5rem;
-    }
+.empty-state-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1.5rem;
 }

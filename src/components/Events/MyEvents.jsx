@@ -1,6 +1,8 @@
 // src/components/Events/MyEvents.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import { apiGet, apiPost } from '../../api';
 import Layout from '../Layout';
 import './MyEvents.css'; // Import the new CSS
@@ -17,16 +19,32 @@ const formatDate = (dateString) => {
     });
 };
 
+// --- Reusable Animated Section Wrapper ---
+const AnimatedSection = ({ children, className = '', delay = 0.1 }) => {
+    const { ref, inView } = useInView({ once: true, amount: 0.2 });
+    return (
+        <motion.div
+            ref={ref}
+            className={className}
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ type: 'spring', stiffness: 100, damping: 20, delay }}
+        >
+            {children}
+        </motion.div>
+    );
+};
+
+// --- Main MyEvents Component ---
 export default function MyEvents() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [actionLoading, setActionLoading] = useState(null); // Tracks which card is loading
+    const [actionLoading, setActionLoading] = useState(null);
     
     const filter = searchParams.get('filter') || 'all';
 
-    // Function to fetch or refetch data
     const fetchData = async (showLoading = true) => {
         if (showLoading) setLoading(true);
         try {
@@ -43,33 +61,26 @@ export default function MyEvents() {
         }
     };
 
-    // Fetch data on component mount
     useEffect(() => {
         fetchData();
     }, []);
 
-    // Memoized array of events based on the filter
     const filteredEvents = useMemo(() => {
         if (!data?.events) return [];
         if (filter === 'all') return data.events;
         return data.events.filter(event => event.status === filter);
     }, [data, filter]);
 
-    // Handle a status update from a child card
     const handleQuickAction = async (eventId, action, confirmMessage) => {
         if (window.confirm(confirmMessage)) {
-            setActionLoading(eventId); // Set loading state for this card
+            setActionLoading(eventId);
             try {
-                // Use the 'events_actions.php' endpoint
                 const result = await apiPost('events_actions.php', { id: eventId, action });
                 if (result.success) {
-                    // Optimistically update the UI first
                     setData(prevData => {
                         const newEvents = prevData.events.map(event => 
                             event.id == result.event_id ? { ...event, status: result.new_status } : event
                         );
-                        
-                        // Recalculate stats
                         const newStats = { total: 0, upcoming: 0, ongoing: 0, completed: 0, draft: 0, cancelled: 0 };
                         newEvents.forEach(event => {
                             newStats.total++;
@@ -77,7 +88,6 @@ export default function MyEvents() {
                                 newStats[event.status]++;
                             }
                         });
-
                         return { ...prevData, events: newEvents, stats: newStats };
                     });
                 } else {
@@ -85,16 +95,16 @@ export default function MyEvents() {
                 }
             } catch (err) {
                 alert(`Error: ${err.message}`);
-                fetchData(false); // Refetch data on error to be safe
+                fetchData(false);
             } finally {
-                setActionLoading(null); // Clear loading state
+                setActionLoading(null);
             }
         }
     };
 
     if (loading) {
         return (
-            <Layout user={data?.user}>
+            <Layout user={data?.user} unread_count={data?.unread_count}>
                 <div className="container mt-4 text-center" style={{ minHeight: '60vh' }}>
                     <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Loading...</span>
@@ -106,7 +116,7 @@ export default function MyEvents() {
     
     if (error) {
         return (
-            <Layout user={data?.user}>
+            <Layout user={data?.user} unread_count={data?.unread_count}>
                 <div className="container mt-4">
                     <div className="alert alert-danger">Error: {error}</div>
                 </div>
@@ -118,7 +128,7 @@ export default function MyEvents() {
 
     const { user, stats, events } = data;
     const filterTabs = [
-        { key: 'all', name: 'All Events', count: stats.total, icon: 'fa-layer-group' },
+        { key: 'all', name: 'All', count: stats.total, icon: 'fa-layer-group' },
         { key: 'upcoming', name: 'Upcoming', count: stats.upcoming, icon: 'fa-clock' },
         { key: 'ongoing', name: 'Ongoing', count: stats.ongoing, icon: 'fa-play-circle' },
         { key: 'draft', name: 'Drafts', count: stats.draft, icon: 'fa-edit' },
@@ -127,10 +137,10 @@ export default function MyEvents() {
     ];
 
     return (
-        <Layout user={user}>
-            <div className="container mt-4">
+        <Layout user={user} unread_count={data?.unread_count}>
+            <div className="my-events-container">
                 {/* Hero Section */}
-                <div className="my-events-hero">
+                <AnimatedSection className="my-events-hero">
                     <div className="row justify-content-center">
                         <div className="col-lg-8 text-center">
                             <h1 className="display-5 fw-bold mb-3">My Events</h1>
@@ -138,96 +148,120 @@ export default function MyEvents() {
                                 Manage and track all your events in one place. Create, edit, and monitor your event's performance.
                             </p>
                             <div className="stats-grid">
-                                <div className="stat-card"><div className="stat-number">{stats.total}</div><div className="stat-label">Total Events</div></div>
-                                <div className="stat-card"><div className="stat-number">{stats.upcoming}</div><div className="stat-label">Upcoming</div></div>
-                                <div className="stat-card"><div className="stat-number">{stats.ongoing}</div><div className="stat-label">Ongoing</div></div>
-                                <div className="stat-card"><div className="stat-number">{stats.draft}</div><div className="stat-label">Drafts</div></div>
+                                {Object.entries(stats).map(([key, value], index) => (
+                                    <motion.div 
+                                        key={key} 
+                                        className="stat-card"
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 15, delay: index * 0.1 }}
+                                    >
+                                        <div className="stat-number">{value}</div>
+                                        <div className="stat-label text-capitalize">{key.replace('_', ' ')}</div>
+                                    </motion.div>
+                                ))}
                             </div>
                         </div>
                     </div>
-                </div>
+                </AnimatedSection>
 
                 {/* Header Actions */}
-                <div className="d-flex justify-content-between align-items-center mb-4">
+                <AnimatedSection delay={0.2} className="d-flex justify-content-between align-items-center">
                     <div>
                         <h2 className="h3 mb-1">Manage Your Events</h2>
                         <p className="text-muted mb-0">
-                            {stats.total > 0
-                                ? `You have ${stats.total} events.`
-                                : "Ready to create your first amazing event?"}
+                            {stats.total > 0 ? `You have ${stats.total} events.` : "Ready to create your first amazing event?"}
                         </p>
                     </div>
-                    <Link to="/create-event" className="btn btn-primary btn-create">
-                        <i className="fas fa-plus-circle me-2"></i>Create New Event
-                    </Link>
-                </div>
+                    <motion.div whileHover={{ y: -3, scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+                        <Link to="/create-event" className="btn btn-primary btn-create">
+                            <i className="fas fa-plus-circle me-2"></i>Create New Event
+                        </Link>
+                    </motion.div>
+                </AnimatedSection>
 
-                {/* Quick Action Card */}
+                {/* Quick Action Card or Empty State */}
                 {events.length === 0 ? (
-                    <div className="quick-action-card">
+                    <AnimatedSection delay={0.3} className="quick-action-card">
                         <h3 className="mb-3">Ready to Create Your First Event?</h3>
                         <p className="mb-4 opacity-90">Start your event creation journey and share amazing experiences.</p>
-                        <Link to="/create-event" className="action-btn">
-                            <i className="fas fa-rocket me-2"></i>Launch Your First Event
-                        </Link>
-                    </div>
+                        <motion.div whileHover={{ y: -3, scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+                            <Link to="/create-event" className="action-btn">
+                                <i className="fas fa-rocket me-2"></i>Launch Your First Event
+                            </Link>
+                        </motion.div>
+                    </AnimatedSection>
                 ) : (
-                    <div className="quick-action-card">
+                    <AnimatedSection delay={0.3} className="quick-action-card">
                         <h3 className="mb-3">Event Management Hub</h3>
                         <p className="mb-4 opacity-90">Quickly access your events or create new ones.</p>
                         <div className="d-flex gap-3 flex-wrap justify-content-center">
-                            <Link to="/create-event" className="action-btn"><i className="fas fa-plus-circle me-2"></i>Create New Event</Link>
-                            <Link to="/dashboard" className="action-btn"><i className="fas fa-home me-2"></i>Back to Dashboard</Link>
+                            <motion.div whileHover={{ y: -3, scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+                                <Link to="/create-event" className="action-btn"><i className="fas fa-plus-circle me-2"></i>Create New Event</Link>
+                            </motion.div>
+                            <motion.div whileHover={{ y: -3, scale: 1.05 }} transition={{ type: 'spring', stiffness: 300 }}>
+                                <Link to="/dashboard" className="action-btn"><i className="fas fa-home me-2"></i>Back to Dashboard</Link>
+                            </motion.div>
                         </div>
-                    </div>
+                    </AnimatedSection>
                 )}
 
                 {/* Filter Tabs */}
                 {events.length > 0 && (
-                    <div className="filter-tabs">
+                    <AnimatedSection delay={0.4} className="filter-tabs">
                         {filterTabs.map(tab => (
                             <Link key={tab.key} to={`?filter=${tab.key}`} className={`filter-tab ${filter === tab.key ? 'active' : ''}`}>
                                 <i className={`fas ${tab.icon} me-2`}></i>{tab.name} ({tab.count})
+                                {filter === tab.key && (
+                                    <motion.span 
+                                        className="filter-tab-indicator"
+                                        layoutId="filter-indicator"
+                                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    />
+                                )}
                             </Link>
                         ))}
-                    </div>
+                    </AnimatedSection>
                 )}
 
                 {/* Events Grid */}
-                {events.length > 0 && filteredEvents.length === 0 && (
-                    <div className="col-12">
-                        <div className="empty-state">
-                            <div className="empty-state-icon"><i className="fas fa-filter"></i></div>
-                            <h3 className="mb-3">No Events Found</h3>
-                            <p className="text-muted mb-4">
-                                No events match the selected filter. Try <Link to="?filter=all">viewing all events</Link>.
-                            </p>
-                        </div>
-                    </div>
-                )}
+                <AnimatePresence>
+                    {events.length > 0 && filteredEvents.length === 0 && (
+                        <AnimatedSection className="col-12">
+                            <div className="empty-state">
+                                <div className="empty-state-icon"><i className="fas fa-filter"></i></div>
+                                <h3 className="mb-3">No Events Found</h3>
+                                <p className="text-muted mb-4">
+                                    No events match the selected filter. Try <Link to="?filter=all">viewing all events</Link>.
+                                </p>
+                            </div>
+                        </AnimatedSection>
+                    )}
+                </AnimatePresence>
                 
                 <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 event-grid">
-                    {filteredEvents.map((event, index) => (
-                        <MyEventCard 
-                            key={event.id} 
-                            event={event} 
-                            index={index} 
-                            onQuickAction={handleQuickAction}
-                            isLoading={actionLoading === event.id} 
-                        />
-                    ))}
+                    <AnimatePresence>
+                        {filteredEvents.map((event, index) => (
+                            <MyEventCard 
+                                key={event.id} 
+                                event={event} 
+                                index={index} 
+                                onQuickAction={handleQuickAction}
+                                isLoading={actionLoading === event.id} 
+                            />
+                        ))}
+                    </AnimatePresence>
                 </div>
             </div>
         </Layout>
     );
 }
 
-// --- Sub-Component for the Event Card ---
+// --- Sub-Component for the Event Card (with Motion) ---
 function MyEventCard({ event, index, onQuickAction, isLoading }) {
     const navigate = useNavigate();
 
     const handleCardClick = (e) => {
-        // Don't navigate if a button, link, or their icon was clicked
         if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'BUTTON' || e.target.closest('button')) {
             return;
         }
@@ -249,13 +283,52 @@ function MyEventCard({ event, index, onQuickAction, isLoading }) {
     const remainingCategories = event.category_names ? event.category_names.split(', ').length - 2 : 0;
     const eventImageUrl = event.image ? `http://localhost/CampusEventHub/${event.image}` : null;
 
+    // Variants for hover animations
+    const cardVariants = {
+        rest: { 
+            transform: 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)',
+            boxShadow: 'var(--shadow-medium)'
+        },
+        hover: { 
+            transform: 'perspective(1000px) rotateY(2deg) rotateX(-4deg) scale(1.03)', 
+            boxShadow: 'var(--shadow-large)'
+        }
+    };
+    const borderVariants = {
+        rest: { scaleX: 0 },
+        hover: { scaleX: 1 }
+    };
+    const imageVariants = {
+        rest: { scale: 1 },
+        hover: { scale: 1.1 }
+    };
+    const actionsVariants = {
+        rest: { opacity: 0, y: 10 },
+        hover: { opacity: 1, y: 0, transition: { delay: 0.1 } }
+    };
+
     return (
-        <div className="col event-item" style={{ "--index": index, animationDelay: `${index * 0.1}s` }}>
-            <div className="card h-100 event-card" onClick={handleCardClick} style={{cursor: 'pointer'}}>
-                {/* Event Image */}
-                <div className="position-relative overflow-hidden">
+        <motion.div 
+            className="col event-item" 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ type: 'spring', stiffness: 100, damping: 20, delay: index * 0.1 }}
+        >
+            <motion.div 
+                className="card h-100 event-card" 
+                onClick={handleCardClick} 
+                style={{cursor: 'pointer'}}
+                variants={cardVariants}
+                initial="rest"
+                whileHover="hover"
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            >
+                <motion.div className="event-card-border" variants={borderVariants} transition={{...{ type: 'spring', stiffness: 400, damping: 30 }, delay: 0.1}} />
+                
+                <div className="position-relative event-image-container">
                     {eventImageUrl ? (
-                        <img src={eventImageUrl} className="card-img-top event-image" alt={event.title} />
+                        <motion.img src={eventImageUrl} className="card-img-top event-image" alt={event.title} variants={imageVariants} />
                     ) : (
                         <div className="card-img-top bg-gradient-primary d-flex align-items-center justify-content-center text-white position-relative" style={{ height: '200px', background: 'var(--gradient-primary)' }}>
                             <div className="text-center">
@@ -264,19 +337,22 @@ function MyEventCard({ event, index, onQuickAction, isLoading }) {
                             </div>
                         </div>
                     )}
-                    <span className={`event-status-badge status-${event.status}`}>
+                    <motion.span 
+                        className={`event-status-badge status-${event.status}`}
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    >
                         <i className={`fas ${getStatusIcon(event.status)} me-1`}></i>
                         {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                    </span>
+                    </motion.span>
                 </div>
 
-                <div className="card-body d-flex flex-column">
+                <div className="card-body d-flex flex-column event-card-body">
                     <h5 className="card-title fw-bold text-dark mb-2 line-clamp-2" style={{minHeight: '3rem'}}>{event.title}</h5>
                     <p className="card-text text-muted flex-grow-1 mb-3 line-clamp-3">
                         {event.description?.replace(/<[^>]+>/g, '').substring(0, 120)}...
                     </p>
 
-                    {/* Event Metadata */}
                     <div className="event-meta small text-muted mb-3">
                         <div className="d-flex align-items-center mb-2"><i className="fas fa-map-marker-alt"></i><span className="text-truncate">{event.location}</span></div>
                         <div className="d-flex align-items-center mb-2"><i className="fas fa-calendar-alt"></i><span>{formatDate(event.event_date)}</span></div>
@@ -300,20 +376,18 @@ function MyEventCard({ event, index, onQuickAction, isLoading }) {
                         </div>
                     </div>
 
-                    {/* Action Buttons: ALL BUTTONS are now inside this single grid */}
-                    <div className="event-actions">
+                    <motion.div className="event-actions" variants={actionsVariants}>
                         <div className="action-buttons-grid">
                             <Link to={`/event/${event.id}`} className="btn btn-card-view"><i className="fas fa-eye me-1"></i>View</Link>
                             <Link to={`/edit-event/${event.id}`} className="btn btn-card-edit"><i className="fas fa-edit me-1"></i>Edit</Link>
                             <Link to={`/manage-rsvps/${event.id}`} className="btn btn-card-success"><i className="fas fa-users me-1"></i>RSVPs</Link>
                             <Link to={`/manage-tickets/${event.id}`} className="btn btn-card-warning"><i className="fas fa-ticket-alt me-1"></i>Tickets</Link>
                         
-                            {/* --- Quick Status Actions are now inside the grid --- */}
                             {event.status === 'upcoming' && (
                                 <>
                                     <button className="btn btn-card-warning" disabled={isLoading}
                                         onClick={() => onQuickAction(event.id, 'mark_ongoing', 'Mark this event as ongoing?')}>
-                                        {isLoading ? <span className="spinner-border spinner-border-sm"></span> : <><i className="fas fa-play-circle me-1"></i>Start Event</>}
+                                        {isLoading ? <span className="spinner-border spinner-border-sm"></span> : <><i className="fas fa-play-circle me-1"></i>Start</>}
                                     </button>
                                     <button className="btn btn-card-danger" disabled={isLoading}
                                         onClick={() => onQuickAction(event.id, 'cancel', 'Are you sure you want to cancel this event?')}>
@@ -334,9 +408,9 @@ function MyEventCard({ event, index, onQuickAction, isLoading }) {
                                 </button>
                             )}
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

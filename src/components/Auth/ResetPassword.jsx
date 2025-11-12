@@ -1,5 +1,8 @@
+// src/components/Auth/ResetPassword.jsx
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { apiPost } from '../../api'; // Import apiPost
+import './Auth.css'; // Import the shared CSS
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -7,72 +10,77 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [msg, setMsg] = useState(null);
+  const [loading, setLoading] = useState(false); // Added loading state
   const nav = useNavigate();
 
   async function submit(e) {
     e.preventDefault();
     setMsg(null);
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       setMsg('Passwords do not match');
       return;
     }
+    
+    setLoading(true); // Set loading
 
     try {
-      const res = await fetch("http://localhost/CampusEventHub/backend/api/auth/reset_password.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password })
-      });
-
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.json();
+      // Use apiPost from your api.js file
+      const data = await apiPost('auth/reset_password.php', { token, password });
 
       if (data.success) {
         setMsg('Password updated! Redirecting to login...');
         setTimeout(() => nav('/login'), 1500);
-      } else {
-        setMsg(data.error || 'Error resetting password');
       }
+      // apiPost will throw an error if !res.ok, so no 'else' is needed
     } catch (err) {
       console.error(err);
-      setMsg('Something went wrong');
+      if (err instanceof SyntaxError) {
+        setMsg("An unexpected error occurred. Please try again.");
+      } else {
+        setMsg(err.message || 'Something went wrong');
+      }
+    } finally {
+      setLoading(false); // Unset loading
     }
   }
 
+  // This renders if the token is missing from the URL
   if (!token) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }} className="bg-light">
+      <div className="auth-page-wrapper">
+        <div className="auth-main">
           <div className="container py-5">
             <div className="row justify-content-center">
               <div className="col-11 col-md-6 col-lg-5 col-xl-4">
-                <div className="p-5 rounded-4 shadow-lg text-white text-center animate__animated animate__fadeIn"
-                     style={{ background: 'linear-gradient(160deg, #84898cff, #2c3e50)' }}>
-                  <h2 className="mb-3 fw-bold">Invalid Link</h2>
-                  <p className="mb-4">This password reset link is invalid or has expired.</p>
-                  <a href="/forgot-password" className="btn btn-primary w-100">Request New Link</a>
+                <div className="auth-card text-center">
+                  <div className="auth-logo">EventHub</div>
+                  <h2 className="auth-header">Invalid Link</h2>
+                  <p className="text-muted mb-4">This password reset link is invalid or has expired.</p>
+                  <Link to="/forgot-password" className="btn auth-button w-100">
+                    Request New Link
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <AuthFooter /> {/* Use the shared footer */}
       </div>
     );
   }
 
+  // This renders if the token IS present
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
-      {/* Main Content - takes remaining space */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }} className="bg-light">
+    <div className="auth-page-wrapper">
+      <div className="auth-main">
         <div className="container py-5">
           <div className="row justify-content-center">
             <div className="col-11 col-md-6 col-lg-5 col-xl-4">
-              <div className="p-5 rounded-4 shadow-lg text-white animate__animated animate__fadeIn"
-                   style={{ background: 'linear-gradient(160deg, #84898cff, #2c3e50)' }}>
-                
-                <h2 className="mb-4 text-center fw-bold">Reset Password</h2>
+              
+              <div className="auth-card">
+                <div className="auth-logo">EventHub</div>
+                <h2 className="auth-header">Set New Password</h2>
                 
                 {msg && (
                   <div className={`alert ${msg.includes('updated') || msg.includes('Redirecting') ? 'alert-success' : 'alert-danger'}`}>
@@ -85,14 +93,15 @@ export default function ResetPassword() {
                     <label className="form-label">New Password</label>
                     <input
                       type="password"
-                      className="form-control"
+                      className="form-control auth-input"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Enter new password"
                       minLength="6"
                       required
+                      disabled={loading}
                     />
-                    <small className="text-white-50 d-block mt-1">
+                    <small className="text-muted d-block mt-1">
                       Must be at least 6 characters
                     </small>
                   </div>
@@ -100,28 +109,29 @@ export default function ResetPassword() {
                     <label className="form-label">Confirm Password</label>
                     <input
                       type="password"
-                      className="form-control"
+                      className="form-control auth-input"
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new password"
                       minLength="6"
                       required
+                      disabled={loading}
                     />
                   </div>
 
-                  <button type="submit" className="btn btn-primary w-100 mb-3">
-                    Set New Password
+                  <button type="submit" className="btn auth-button w-100 mb-3" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Saving...
+                      </>
+                    ) : 'Set New Password'}
                   </button>
 
-                  {/* Back to login link */}
                   <div className="text-center">
-                    <a 
-                      href="/login" 
-                      className="text-white text-decoration-none"
-                      style={{ fontSize: '0.95rem', opacity: 0.9 }}
-                    >
+                    <Link to="/login" className="auth-link" style={{ fontSize: '0.95rem' }}>
                       ← Back to Login
-                    </a>
+                    </Link>
                   </div>
                 </form>
 
@@ -130,41 +140,37 @@ export default function ResetPassword() {
           </div>
         </div>
       </div>
-
-      {/* Footer - stays at bottom */}
-      <footer className="bg-dark text-white py-5" style={{ width: '100%' }}>
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-4 text-center text-lg-start mb-3 mb-lg-0">
-              <h3 className="h4 fw-bold">EventHub</h3>
-              <p className="text-secondary mb-0" style={{ fontSize: '0.9rem' }}>
-                Connecting people through unforgettable experiences.
-              </p>
-            </div>
-            
-            <div className="col-lg-4 text-center mb-3 mb-lg-0">
-              <div className="d-flex justify-content-center gap-3 flex-wrap">
-                <a href="/" className="text-white text-decoration-none">Home</a>
-                <a href="/all-events" className="text-white text-decoration-none">Events</a>
-                <a href="/my-events" className="text-white text-decoration-none">My Events</a>
-                <a href="/profile" className="text-white text-decoration-none">Profile</a>
-              </div>
-            </div>
-            
-            <div className="col-lg-4 text-center text-lg-end">
-              <div className="mb-3">
-                <a href="#" className="text-white me-3 fs-5"><i className="fab fa-instagram"></i></a>
-                <a href="#" className="text-white me-3 fs-5"><i className="fab fa-whatsapp"></i></a>
-                <a href="#" className="text-white me-3 fs-5"><i className="fab fa-linkedin"></i></a>
-                <a href="#" className="text-white fs-5"><i className="fab fa-twitter"></i></a>
-              </div>
-              <p className="text-secondary mb-0" style={{ fontSize: '0.85rem' }}>
-                &copy; {new Date().getFullYear()} EventHub. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <AuthFooter /> {/* Use the shared footer */}
     </div>
   );
 }
+
+// Reusable Footer Component
+const AuthFooter = () => (
+  <footer className="auth-footer">
+    <div className="container">
+      <div className="row py-4">
+        <div className="col-md-4 text-center text-md-start mb-4 mb-md-0">
+          <Link to="/" className="footer-logo">EventHub</Link>
+          <p className="mb-0">Your gateway to campus life.</p>
+        </div>
+        <div className="col-md-4 text-center mb-4 mb-md-0">
+          <h6 className="text-uppercase fw-bold mb-3">Quick Links</h6>
+          <Link to="/login" className="footer-link">Log In</Link>
+          <Link to="/register" className="footer-link">Sign Up</Link>
+        </div>
+        <div className="col-md-4 text-center text-md-end">
+          <h6 className="text-uppercase fw-bold mb-3">Connect With Us</h6>
+          <div className="social-icons">
+            <a href="#" className="social-icon"><i className="fab fa-twitter"></i></a>
+            <a href="#" className="social-icon"><i className="fab fa-instagram"></i></a>
+            <a href="#" className="social-icon"><i className="fab fa-facebook"></i></a>
+            <a href="#" className="social-icon"><i className="fab fa-linkedin"></i></a>
+          </div>
+          <p className="mt-4 mb-0">&copy; {new Date().getFullYear()} CampusEventHub.</p>
+          <p className="mb-0">All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+);

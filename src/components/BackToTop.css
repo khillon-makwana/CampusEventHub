@@ -1,0 +1,45 @@
+/* src/components/BackToTop.css */
+
+/* --- Root Variables (from your theme) --- */
+:root {
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-medium);
+    z-index: 1000;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Framer Motion's whileHover prop will handle the hover state,
+  but we can define the hover background as a class for Framer Motion 
+  to animate *to*. (Optional, but a clean way to do it)
+*/
+.back-to-top.hover {
+    background: var(--gradient-secondary);
+}
+
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 80px; /* Above mobile nav */
+        right: 20px;
+        width: 48px;
+        height: 48px;
+    }
+}
