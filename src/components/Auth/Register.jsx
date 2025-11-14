@@ -147,7 +147,7 @@ export default function Register() {
                   <h6 className="text-uppercase fw-bold mb-3">Connect With Us</h6>
                   <div className="social-icons">
                       <a href="#" className="social-icon"><i className="fab fa-twitter"></i></a>
-                      <a href="#" className_ ="social-icon"><i className="fab fa-instagram"></i></a>
+                      <a href="#" className="social-icon"><i className="fab fa-instagram"></i></a>
                       <a href="#" className="social-icon"><i className="fab fa-facebook"></i></a>
                       <a href="#" className="social-icon"><i className="fab fa-linkedin"></i></a>
                   </div>
