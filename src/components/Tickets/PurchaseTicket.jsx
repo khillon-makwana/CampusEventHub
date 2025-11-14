@@ -1,7 +1,7 @@
 // src/components/Tickets/PurchaseTicket.jsx
 import React, { useState, useEffect } from 'react';
-// *** FIX: Import Link from react-router-dom ***
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { apiGet, apiPost } from '../../api';
 import Layout from '../Layout';
 import './PurchaseTicket.css';
@@ -67,7 +67,7 @@ export default function PurchaseTicket() {
     // Handle purchase submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setLoading(true); // Use setLoading for the whole page
         setError(null);
         try {
             const result = await apiPost('purchase_ticket.php', {
@@ -82,98 +82,157 @@ export default function PurchaseTicket() {
             }
         } catch (err) {
             setError(err.message);
-            setLoading(false);
+            setLoading(false); // Only set loading false on error
         }
     };
 
+    // Loading State
     if (loading && !data) {
-        return <Layout hideNav={true} hideFooter={true}><div className="ticket-purchase-wrapper"><div className="spinner-border text-white mx-auto" role="status"></div></div></Layout>;
+        return (
+            <div className="ticket-purchase-wrapper d-flex align-items-center justify-content-center">
+                <div className="spinner-border text-primary" style={{width: '3rem', height: '3rem'}} role="status"></div>
+            </div>
+        );
     }
-
+    
+    // Error State
     if (error && !data) {
-        return <Layout hideNav={true} hideFooter={true}><div className="ticket-purchase-wrapper"><div className="container"><div className="alert alert-danger">{error}</div></div></div></Layout>;
+        return (
+            <div className="ticket-purchase-wrapper d-flex align-items-center justify-content-center">
+                <div className="container"><div className="alert alert-danger">{error}</div></div>
+            </div>
+        );
     }
     
-    if (!data) return <Layout hideNav={true} hideFooter={true} />;
+    if (!data) return null;
     
-    const { user, event } = data;
-    // Handle case where available_tickets might be null or 0
+    const { user, event, unread_count } = data;
     const maxTickets = Math.min(10, event.available_tickets || 0);
+    const eventImageUrl = event.image ? `http://localhost/CampusEventHub/${event.image}` : null;
+
+    // Animation Variants
+    const colVariants = {
+        hidden: { opacity: 0, x: -50 },
+        visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 100, damping: 20, delay: 0.1 } }
+    };
+    const formVariants = {
+        hidden: { opacity: 0, x: 50 },
+        visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 100, damping: 20, delay: 0.3 } }
+    };
     
     return (
-        <Layout user={user} hideNav={true} hideFooter={true}>
-            <div className="ticket-purchase-wrapper">
-                <div className="container">
-                    <div className="row justify-content-center">
-                        <div className="col-lg-8 col-md-10">
-                            <div className="ticket-card">
-                                <div className="ticket-header">
-                                    <h4><i className="fas fa-ticket-alt me-2"></i>{event.title}</h4>
-                                    <div className="subtitle">Complete your ticket purchase securely</div>
-                                </div>
-                                <div className="ticket-body">
-                                    {error && <div className="alert alert-danger">{error}</div>}
+        // We hide the standard nav/footer for a focused checkout experience
+        <Layout user={user} unread_count={unread_count} hideNav={true} hideFooter={true}>
+            <div className="container-fluid p-0">
+                <div className="row g-0 ticket-purchase-wrapper">
+                    
+                    {/* --- Left Column (Details) --- */}
+                    <motion.div 
+                        className="col-lg-7 purchase-details-col"
+                        variants={colVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        {/* Use a Link for SPA navigation */}
+                        <Link to={`/event/${eventId}`} className="btn btn-cancel mb-4" style={{width: 'auto', alignSelf: 'flex-start'}}>
+                            <i className="fas fa-arrow-left me-2"></i>
+                            Back to Event
+                        </Link>
 
-                                    <div className="row mb-4">
-                                        <div className="col-md-6 mb-3 mb-md-0">
-                                            <div className="info-card">
-                                                <h6><i className="fas fa-info-circle"></i>Event Details</h6>
-                                                <div className="info-item"><strong><i className="far fa-calendar me-2"></i>Date:</strong><span>{formatDate(event.event_date)}</span></div>
-                                                <div className="info-item"><strong><i className="far fa-clock me-2"></i>Time:</strong><span>{formatTime(event.event_date)}</span></div>
-                                                <div className="info-item"><strong><i className="fas fa-map-marker-alt me-2"></i>Location:</strong><span>{event.location}</span></div>
-                                                <div className="info-item"><strong><i className="fas fa-user me-2"></i>Organizer:</strong><span>{event.organizer_name}</span></div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="info-card">
-                                                <h6><i className="fas fa-tags"></i>Pricing Info</h6>
-                                                <div className="info-item"><strong><i className="fas fa-money-bill-wave me-2"></i>Price:</strong><span>KSh {Number(event.ticket_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</span></div>
-                                                <div className="info-item"><strong><i className="fas fa-tickets-alt me-2"></i>Available:</strong>
-                                                    <span>
-                                                        <span className={`availability-badge ${event.available_tickets < 10 ? 'low' : ''}`}>
-                                                            {event.available_tickets} tickets
-                                                        </span>
-                                                    </span>
-                                                </div>
-                                                <div className="info-item"><strong><i className="fas fa-credit-card me-2"></i>Payment:</strong><span>M-Pesa</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <form onSubmit={handleSubmit}>
-                                        <div className="quantity-selector">
-                                            <label htmlFor="quantity"><i className="fas fa-shopping-cart me-2"></i>Number of Tickets</label>
-                                            <select className="form-select" id="quantity" name="quantity" value={quantity} onChange={handleQuantityChange} required>
-                                                {/* Ensure at least one option shows even if 0 tickets */}
-                                                {maxTickets <= 0 && <option value="0" disabled>No tickets available</option>}
-                                                {[...Array(maxTickets).keys()].map(i => (
-                                                    <option key={i + 1} value={i + 1}>
-                                                        {i + 1} ticket{i > 0 ? 's' : ''} - KSh {Number(event.ticket_price * (i + 1)).toLocaleString('en-US', {minimumFractionDigits: 2})}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        
-                                        <div className="total-box">
-                                            <label>Total Amount</label>
-                                            <h5>KSh {Number(total).toLocaleString('en-US', {minimumFractionDigits: 2})}</h5>
-                                        </div>
-                                        
-                                        <div className="d-grid gap-3">
-                                            <button type="submit" name="purchase_tickets" className="btn btn-primary btn-purchase" disabled={loading || maxTickets <= 0}>
-                                                {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-lock me-2"></i>}
-                                                {loading ? 'Processing...' : 'Proceed to Secure Payment'}
-                                            </button>
-                                            <Link to={`/event/${eventId}`} className="btn btn-cancel">
-                                                <i className="fas fa-arrow-left me-2"></i>
-                                                Back to Event
-                                            </Link>
-                                        </div>
-                                    </form>
+                        <div className="event-image-header">
+                            {eventImageUrl ? (
+                                <img src={eventImageUrl} alt={event.title} />
+                            ) : (
+                                <div className="event-image-header-placeholder">
+                                    <i className="fas fa-calendar-alt"></i>
                                 </div>
+                            )}
+                        </div>
+                        
+                        <h1 className="event-title-header">{event.title}</h1>
+                        <p className="event-organizer">by {event.organizer_name}</p>
+
+                        <div className="info-grid mt-3">
+                            <div className="info-item">
+                                <span className="info-label">Date & Time</span>
+                                <span className="info-value">
+                                    <i className="far fa-calendar"></i>
+                                    {formatDate(event.event_date)} at {formatTime(event.event_date)}
+                                </span>
+                            </div>
+                            <div className="info-item">
+                                <span className="info-label">Location</span>
+                                <span className="info-value">
+                                    <i className="fas fa-map-marker-alt"></i>
+                                    {event.location}
+                                </span>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
+
+                    {/* --- Right Column (Form) --- */}
+                    <motion.div 
+                        className="col-lg-5 purchase-form-col"
+                        variants={formVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        <div className="checkout-card">
+                            {error && <div className="alert alert-danger">{error}</div>}
+
+                            <form onSubmit={handleSubmit}>
+                                <div className="quantity-selector">
+                                    <label htmlFor="quantity">Select Quantity</label>
+                                    <select className="form-select" id="quantity" name="quantity" value={quantity} onChange={handleQuantityChange} required>
+                                        {maxTickets <= 0 && <option value="0" disabled>No tickets available</option>}
+                                        {[...Array(maxTickets).keys()].map(i => (
+                                            <option key={i + 1} value={i + 1}>
+                                                {i + 1} ticket{i > 0 ? 's' : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                
+                                <div className="total-box">
+                                    <label>Total Amount</label>
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={total} // This makes it animate when `total` changes
+                                            className="total-price"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ type: 'spring', stiffness: 300, damping: 20, duration: 0.1 }}
+                                        >
+                                            KSh {Number(total).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                        </motion.div>
+                                    </AnimatePresence>
+                                </div>
+                                
+                                <div className="d-grid gap-3">
+                                    <motion.button 
+                                        type="submit" 
+                                        name="purchase_tickets" 
+                                        className="btn btn-primary btn-purchase" 
+                                        disabled={loading || maxTickets <= 0}
+                                        whileHover={{ y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-lock me-2"></i>}
+                                        {loading ? 'Processing...' : 'Proceed to Payment'}
+                                    </motion.button>
+                                </div>
+                            </form>
+                        </div>
+                        {/* "Back" link for mobile */}
+                        <div className="d-lg-none text-center mt-3">
+                             <Link to={`/event/${eventId}`} className="btn-cancel">
+                                <i className="fas fa-arrow-left me-2"></i>
+                                Back to Event
+                            </Link>
+                        </div>
+                    </motion.div>
+
                 </div>
             </div>
         </Layout>

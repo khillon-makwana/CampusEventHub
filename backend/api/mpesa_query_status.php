@@ -7,7 +7,7 @@ require_once __DIR__ . '/../mpesa_integration/MpesaService.php';
 use App\Config\Database;
 
 session_start();
-header('Content-Type: application/json');
+// header('Content-Type: application/json'); // This is already set in cors.php
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
