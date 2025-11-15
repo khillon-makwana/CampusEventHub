@@ -9,7 +9,6 @@ import VerifyEmail from './components/Auth/VerifyEmail';
 import Dashboard from './components/Dashboard/Dashboard';
 import NotFound from './components/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
-
 import Events from './components/Events/Events'; 
 import CreateEvent from './components/Events/CreateEvent';
 import EditEvent from './components/Events/EditEvent';
@@ -20,8 +19,8 @@ import ManageRsvps from './components/Events/ManageRsvps';
 import MyTickets from './components/Tickets/MyTickets';
 import ViewTicket from './components/Tickets/ViewTicket';
 import ManageTickets from './components/Events/ManageTickets';
-
-// --- IMPORT NEW PAYMENT FLOW COMPONENTS ---
+import Notifications from './components/Notifications/Notifications';
+import NotificationSettings from './components/Notifications/NotificationSettings';
 import PurchaseTicket from './components/Tickets/PurchaseTicket';
 import PaymentStatus from './components/Tickets/PaymentStatus';
 import LandingPage from './components/Landing/LandingPage';
@@ -62,6 +61,16 @@ function App() {
           path="/payment-status/:paymentId" 
           element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} 
         /> 
+        {/* --- END NEW ROUTES --- */}
+        {/* --- ADDED NOTIFICATION ROUTES --- */}
+        <Route 
+          path="/notifications" 
+          element={<ProtectedRoute><Notifications /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/notification-settings" 
+          element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} 
+        />
         {/* --- END NEW ROUTES --- */}
 
         {/* 404 */}
