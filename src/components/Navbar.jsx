@@ -6,14 +6,13 @@ import { apiPost } from '../api';
 import './Navbar.css'; // Import the new CSS
 
 // --- Reusable NavLink Component ---
-// This new component handles the sliding animation
 const NavLink = ({ to, path, icon, children }) => {
     const isActive = to === path;
     return (
         <li className="nav-item">
             <Link to={to} className={`nav-link nav-link-custom ${isActive ? 'active' : ''}`}>
                 <motion.div
-                    className="d-flex align-items: center"
+                    className="d-flex align-items-center"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 >
@@ -50,12 +49,11 @@ const Avatar = ({ user }) => {
 };
 
 // --- Main Navbar Component ---
-export default function Navbar({ user, unread_count }) {
+export default function Navbar({ user, unreadCount }) { // FIX: Use unreadCount
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     
-    // Get the current path (e.g., "/dashboard")
     const currentPath = location.pathname;
 
     useEffect(() => {
@@ -119,14 +117,14 @@ export default function Navbar({ user, unread_count }) {
                         <Link to="/notifications" className="notification-bell">
                             <i className="fas fa-bell fa-lg"></i>
                             <AnimatePresence>
-                                {unread_count > 0 && (
+                                {unreadCount > 0 && ( // FIX: Use unreadCount
                                     <motion.span 
                                         className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge"
                                         initial={{ scale: 0, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         exit={{ scale: 0, opacity: 0 }}
                                     >
-                                        {unread_count}
+                                        {unreadCount} {/* FIX: Use unreadCount */}
                                     </motion.span>
                                 )}
                             </AnimatePresence>

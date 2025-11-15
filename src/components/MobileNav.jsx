@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css'; // Uses the same CSS as Navbar for the badge
 
-export default function MobileNav({ unread_count }) {
+export default function MobileNav({ unreadCount }) { // FIX: Use unreadCount
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
@@ -52,7 +52,7 @@ export default function MobileNav({ unread_count }) {
               <i className="fas fa-bell fa-lg d-block mb-1"></i>
               <small>Notifications</small>
               <AnimatePresence>
-                {unread_count > 0 && (
+                {unreadCount > 0 && ( // FIX: Use unreadCount
                     <motion.span 
                         className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" 
                         style={{ fontSize: '0.6rem' }}
@@ -60,7 +60,7 @@ export default function MobileNav({ unread_count }) {
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
                     >
-                        {unread_count}
+                        {unreadCount} {/* FIX: Use unreadCount */}
                     </motion.span>
                 )}
               </AnimatePresence>

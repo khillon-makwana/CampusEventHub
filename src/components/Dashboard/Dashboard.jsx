@@ -1,13 +1,14 @@
 // src/components/Dashboard/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { apiGet } from "../../api";
-import Layout from '../Layout';
-import { Link } from 'react-router-dom';
+import Layout from '../Layout'; // We import Layout again
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import './Dashboard.css';
 
 // --- Reusable Animated Section Wrapper ---
 const AnimatedSection = ({ children, className = '' }) => {
+    // ... (This component is unchanged) ...
     const ref = React.useRef(null);
     const isInView = useInView(ref, { once: true, amount: 0.2 });
 
@@ -26,6 +27,7 @@ const AnimatedSection = ({ children, className = '' }) => {
 
 // --- Reusable Stat Item Component ---
 const StatItem = ({ value, label, delay = 0 }) => {
+    // ... (This component is unchanged) ...
     const ref = React.useRef(null);
     const isInView = useInView(ref, { once: true });
 
@@ -45,8 +47,10 @@ const StatItem = ({ value, label, delay = 0 }) => {
 
 // --- Reusable Event Card Component ---
 const EventCard = ({ event, isOwner, delay = 0 }) => {
+    // ... (This component is unchanged) ...
     const ref = React.useRef(null);
     const isInView = useInView(ref, { once: true, amount: 0.1 });
+    const navigate = useNavigate(); 
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -63,6 +67,29 @@ const EventCard = ({ event, isOwner, delay = 0 }) => {
         return { text: 'Upcoming', class: 'upcoming' };
     };
 
+    const cardVariants = {
+        rest: { 
+            transform: 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)',
+            boxShadow: 'var(--shadow-medium)'
+        },
+        hover: { 
+            transform: 'perspective(1000px) rotateY(3deg) rotateX(-5deg) scale(1.02)', 
+            boxShadow: 'var(--shadow-large)'
+        }
+    };
+    
+    const imageVariants = {
+        rest: { scale: 1 },
+        hover: { scale: 1.1 }
+    };
+
+    const handleCardClick = (e) => {
+        if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+            return;
+        }
+        navigate(`/event/${event.id}`);
+    };
+
     const timeStatus = getTimeStatus(event.event_date);
     const eventImageUrl = event.image ? `http://localhost/CampusEventHub/${event.image}` : null;
 
@@ -73,15 +100,14 @@ const EventCard = ({ event, isOwner, delay = 0 }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ type: 'spring', stiffness: 100, damping: 20, delay: delay * 0.1 }}
-            whileHover="hover" // This triggers the "hover" variant on children
         >
             <motion.div
                 className="event-card"
-                // 3D Tilt Effect on Hover
-                whileHover={{ 
-                    transform: 'perspective(1000px) rotateY(3deg) rotateX(-5deg) scale(1.02)',
-                    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)'
-                }}
+                onClick={handleCardClick}
+                style={{ cursor: 'pointer' }}
+                variants={cardVariants}
+                initial="rest"
+                whileHover="hover"
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
                 <div className="event-image">
@@ -89,7 +115,7 @@ const EventCard = ({ event, isOwner, delay = 0 }) => {
                         <motion.img 
                             src={eventImageUrl} 
                             alt={event.title} 
-                            variants={{ hover: { scale: 1.1 } }} // Image zoom
+                            variants={imageVariants}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                         />
                     ) : (
@@ -142,7 +168,8 @@ const EventCard = ({ event, isOwner, delay = 0 }) => {
 
 
 // --- Main Dashboard Component ---
-export default function Dashboard() {
+// *** FIX: REMOVED props from here ***
+export default function Dashboard() { 
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -154,6 +181,7 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
+            // *** FIX: This API call MUST return user and unread_count ***
             const data = await apiGet('dashboard.php');
             if (data.success) {
                 setDashboardData(data);
@@ -170,7 +198,8 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <Layout>
+            // *** FIX: Pass state to Layout ***
+            <Layout user={dashboardData?.user} unread_count={dashboardData?.unread_count}>
                 <div className="dashboard-loading">
                     <div className="spinner-border" role="status">
                         <span className="visually-hidden">Loading...</span>
@@ -183,7 +212,8 @@ export default function Dashboard() {
 
     if (error) {
         return (
-            <Layout>
+            // *** FIX: Pass state to Layout ***
+            <Layout user={dashboardData?.user} unread_count={dashboardData?.unread_count}>
                 <div className="dashboard-error">
                     <div className="alert alert-danger">
                         <i className="fas fa-exclamation-triangle me-2"></i>
@@ -206,11 +236,12 @@ export default function Dashboard() {
             </Layout>
         );
     }
-
-    // This data structure matches your original file
+    
+    // *** FIX: Destructure user and unread_count from the fetched data ***
     const { user, userEvents, recommendedEvents, stats, unread_count } = dashboardData;
 
     return (
+        // *** FIX: Pass state to Layout ***
         <Layout user={user} unread_count={unread_count}>
             <div className="dashboard-container">
 
@@ -219,7 +250,7 @@ export default function Dashboard() {
                     <div className="row align-items-center">
                         <div className="col-md-8">
                             <h1 className="welcome-title">
-                                Welcome back, <span className="text-primary">{user.fullname}</span>! 👋
+                                <span className="text-primary">{user.fullname}</span>! 👋
                             </h1>
                             <p className="welcome-subtitle">
                                 Ready to discover amazing events or create your own?
