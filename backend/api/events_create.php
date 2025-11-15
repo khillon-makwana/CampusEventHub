@@ -139,7 +139,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $pdo->commit();
-
+// --- NEW NOTIFICATION BLOCK ---
+        if ($status === 'upcoming') { // Only notify if it's published
+            try {
+                $mailer = new \App\Services\Mailer();
+                $notificationManager = new \App\Services\NotificationManager($mailer);
+                $notificationManager->notifyNewEventByCategory($event_id);
+            } catch (Exception $e) {
+                // Log notification error but don't fail the request
+                error_log("Failed to send new event notifications: " . $e->getMessage());
+            }
+        }
+        // --- END NEW BLOCK ---
+        
         echo json_encode(['success' => true, 'message' => 'Event created successfully!', 'event_id' => $event_id]);
         
     } catch (PDOException $e) {
