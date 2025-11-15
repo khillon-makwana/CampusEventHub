@@ -82,8 +82,7 @@ try {
     $stmt = $pdo->prepare("UPDATE payments SET status = 'completed', mpesa_receipt_number = ?, phone_number = COALESCE(?, phone_number), transaction_id = COALESCE(transaction_id, ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?");
     $stmt->execute([$mpesaReceipt, $mpesaPhone, $checkoutRequestId, $payment_id]);
 
-    // --- 2. NEW CLEANUP BLOCK ---
-    // Delete any other "pending" payments for this same user and event
+    // 2. CLEANUP old pending payments
     $stmt_cleanup = $pdo->prepare("
         DELETE FROM payments 
         WHERE user_id = ? 
@@ -96,7 +95,6 @@ try {
         (int)$payment['event_id'], 
         $payment_id
     ]);
-    // --- END NEW BLOCK ---
 
     // 3. CREATE Tickets
     for ($i = 0; $i < (int)$payment['quantity']; $i++) {
@@ -116,6 +114,19 @@ try {
     // 5. UPDATE Attendee List
     $stmt = $pdo->prepare("INSERT INTO event_attendees (event_id, user_id, status, category_id, quantity) VALUES (?, ?, 'going', 1, ?) ON DUPLICATE KEY UPDATE status = 'going', quantity = quantity + VALUES(quantity)");
     $stmt->execute([(int)$payment['event_id'], (int)$payment['user_id'], (int)$payment['quantity']]);
+
+    // 6. SEND NOTIFICATION (This was the missing part)
+    try {
+        // We must re-require the autoloader and services here
+        require_once dirname(__DIR__) . '/vendor/autoload.php';
+        $mailer = new \App\Services\Mailer();
+        $notificationManager = new \App\Services\NotificationManager($mailer);
+        $notificationManager->sendRSVPConfirmation((int)$payment['user_id'], (int)$payment['event_id'], 'going');
+    } catch (Exception $e) {
+        // Log notification error but don't fail the main transaction
+        @file_put_contents(__DIR__ . '/callback_errors.log', date('c') . ' NOTIFICATION_ERROR: ' . $e->getMessage() . "\n", FILE_APPEND);
+    }
+    // --- END NOTIFICATION BLOCK ---
 
     $pdo->commit();
 
