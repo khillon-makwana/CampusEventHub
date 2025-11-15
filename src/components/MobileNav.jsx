@@ -1,74 +1,83 @@
 // src/components/MobileNav.jsx
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import './Navbar.css'; // Uses the same CSS as Navbar for the badge
 
-export default function MobileNav() {
+export default function MobileNav({ unread_count }) {
   const location = useLocation();
-  const unreadCount = 0; // TODO: Fetch from notifications API
-
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="d-md-none mobile-nav fixed-bottom py-2">
+    <motion.div 
+        className="d-md-none mobile-nav fixed-bottom py-2"
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+    >
       <div className="container">
         <ul className="nav justify-content-around mb-0">
           <li className="nav-item">
-            <a 
-              href="/dashboard" 
+            <Link 
+              to="/dashboard" 
               className={`mobile-nav-item text-center ${isActive('/dashboard') ? 'active' : ''}`}
             >
               <i className="fas fa-home fa-lg d-block mb-1"></i>
               <small>Home</small>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a 
-              href="/events" 
+            <Link 
+              to="/events" 
               className={`mobile-nav-item text-center ${isActive('/events') ? 'active' : ''}`}
             >
               <i className="fas fa-calendar-alt fa-lg d-block mb-1"></i>
               <small>Events</small>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a 
-              href="/my-events" 
+            <Link 
+              to="/my-events" 
               className={`mobile-nav-item text-center ${isActive('/my-events') ? 'active' : ''}`}
             >
               <i className="fas fa-list fa-lg d-block mb-1"></i>
               <small>My Events</small>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a 
-              href="/notifications" 
+            <Link 
+              to="/notifications" 
               className={`mobile-nav-item text-center position-relative ${isActive('/notifications') ? 'active' : ''}`}
             >
               <i className="fas fa-bell fa-lg d-block mb-1"></i>
               <small>Notifications</small>
-              {unreadCount > 0 && (
-                <span 
-                  className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" 
-                  style={{ fontSize: '0.6rem' }}
-                >
-                  {unreadCount}
-                </span>
-              )}
-            </a>
+              <AnimatePresence>
+                {unread_count > 0 && (
+                    <motion.span 
+                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" 
+                        style={{ fontSize: '0.6rem' }}
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                    >
+                        {unread_count}
+                    </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
           </li>
           <li className="nav-item">
-            <a 
-              href="/profile" 
+            <Link 
+              to="/profile" 
               className={`mobile-nav-item text-center ${isActive('/profile') ? 'active' : ''}`}
             >
               <i className="fas fa-user fa-lg d-block mb-1"></i>
               <small>Profile</small>
-            </a>
+            </Link>
           </li>
         </ul>
       </div>
 
-      {/* *** FIX: Changed <style jsx> to <style> *** */}
       <style>{`
         .mobile-nav {
           background: rgba(255, 255, 255, 0.98);
@@ -86,6 +95,7 @@ export default function MobileNav() {
           flex-direction: column;
           align-items: center;
           gap: 0.25rem;
+          width: 60px; /* Ensure consistent tap target size */
         }
         .mobile-nav-item:hover,
         .mobile-nav-item.active {
@@ -99,12 +109,7 @@ export default function MobileNav() {
         .notification-badge {
           animation: pulse 2s infinite;
         }
-        @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
       `}</style>
-    </div>
+    </motion.div>
   );
 }

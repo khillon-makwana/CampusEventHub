@@ -13,7 +13,7 @@ const NavLink = ({ to, path, icon, children }) => {
         <li className="nav-item">
             <Link to={to} className={`nav-link nav-link-custom ${isActive ? 'active' : ''}`}>
                 <motion.div
-                    className="d-flex align-items-center"
+                    className="d-flex align-items: center"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 >
