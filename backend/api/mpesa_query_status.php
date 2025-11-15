@@ -58,12 +58,15 @@ try {
 
     if ($resultCode === 0) {
         // Payment is successful, manually trigger completion logic
-        // This is a simplified version of mpesa_callback.php
         $pdo->beginTransaction();
 
         $stmt_lock = $pdo->prepare("SELECT status FROM payments WHERE id = ? FOR UPDATE");
         $stmt_lock->execute([$payment_id]);
-        if ($stmt_lock->fetch(PDO::FETCH_COLUMN) === 'completed') {
+        $current_status = $stmt_lock->fetch(PDO::FETCH_COLUMN);
+        
+        $first_ticket_id = null;
+
+        if ($current_status === 'completed') {
             $pdo->commit(); // Already done, just commit
         } else {
             // Mark payment complete
@@ -76,6 +79,11 @@ try {
                 $stmt_tix = $pdo->prepare("INSERT INTO tickets (event_id, user_id, ticket_code, status, purchase_date) VALUES (?, ?, ?, 'active', CURRENT_TIMESTAMP)");
                 $stmt_tix->execute([(int)$payment['event_id'], (int)$payment['user_id'], $ticket_code]);
                 $ticket_id = (int)$pdo->lastInsertId();
+                
+                if ($i === 0) {
+                    $first_ticket_id = $ticket_id; // Save the first ticket ID
+                }
+
                 $stmt_link = $pdo->prepare("INSERT INTO payment_tickets (payment_id, ticket_id) VALUES (?, ?)");
                 $stmt_link->execute([$payment_id, $ticket_id]);
             }
@@ -87,13 +95,29 @@ try {
             $stmt_attend->execute([(int)$payment['event_id'], (int)$payment['user_id'], (int)$payment['quantity']]);
             
             $pdo->commit();
+
+            // --- ADDED NOTIFICATION BLOCK ---
+            // This logic is now duplicated from mpesa_callback.php for robustness
+            try {
+                $mailer = new \App\Services\Mailer();
+                $notificationManager = new \App\Services\NotificationManager($mailer);
+                $notificationManager->sendRSVPConfirmation((int)$payment['user_id'], (int)$payment['event_id'], 'going');
+            } catch (Exception $e) {
+                // Log notification error but don't fail the main request
+                error_log("Error in mpesa_query_status notification: " . $e->getMessage());
+            }
+            // --- END NOTIFICATION BLOCK ---
         }
 
         // Get the first ticket ID to redirect to
-        $stmt_ticket = $pdo->prepare("SELECT t.id FROM tickets t JOIN payment_tickets pt ON t.id = pt.ticket_id WHERE pt.payment_id = ? LIMIT 1");
-        $stmt_ticket->execute([$payment_id]);
-        $ticket_id = (int)$stmt_ticket->fetchColumn();
-        echo json_encode(['status' => 'completed', 'ticket_id' => $ticket_id]);
+        // If we just generated it, use that one. Otherwise, query for it.
+        if (!$first_ticket_id) {
+            $stmt_ticket = $pdo->prepare("SELECT t.id FROM tickets t JOIN payment_tickets pt ON t.id = pt.ticket_id WHERE pt.payment_id = ? LIMIT 1");
+            $stmt_ticket->execute([$payment_id]);
+            $first_ticket_id = (int)$stmt_ticket->fetchColumn();
+        }
+        
+        echo json_encode(['status' => 'completed', 'ticket_id' => $first_ticket_id]);
 
     } else {
         // Still pending or failed
@@ -103,5 +127,7 @@ try {
 } catch (Throwable $e) {
     if(isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
     http_response_code(500);
+    // Send the actual error message so we can see it in the console
     echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
 }
+?>

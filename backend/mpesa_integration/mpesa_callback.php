@@ -115,7 +115,7 @@ try {
     $stmt = $pdo->prepare("INSERT INTO event_attendees (event_id, user_id, status, category_id, quantity) VALUES (?, ?, 'going', 1, ?) ON DUPLICATE KEY UPDATE status = 'going', quantity = quantity + VALUES(quantity)");
     $stmt->execute([(int)$payment['event_id'], (int)$payment['user_id'], (int)$payment['quantity']]);
 
-    // 6. SEND NOTIFICATION (This was the missing part)
+    // 6. SEND NOTIFICATION
     try {
         // We must re-require the autoloader and services here
         require_once dirname(__DIR__) . '/vendor/autoload.php';
