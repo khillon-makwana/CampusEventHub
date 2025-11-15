@@ -67,7 +67,7 @@ export default function Navbar({ user, unreadCount }) { // FIX: Use unreadCount
     const handleLogout = async () => {
         try {
             await apiPost('auth/logout.php', {});
-            navigate('/login');
+            navigate('/');
         } catch (err) {
             console.error('Logout failed:', err);
             navigate('/login');
