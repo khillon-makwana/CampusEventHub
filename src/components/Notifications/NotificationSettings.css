@@ -1,0 +1,131 @@
+/* src/components/Notifications/NotificationSettings.css */
+/* We can reuse many styles from Notifications.css */
+
+.notification-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-large);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+}
+.card-header {
+    background: var(--gradient-primary);
+    border: none;
+    padding: 1.5rem 2rem;
+}
+.card-header h4 {
+    font-weight: 600;
+    color: white;
+}
+
+.section-title {
+    position: relative;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+}
+
+/* Custom toggle switches */
+.form-check.form-switch {
+    padding-left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    transition: var(--transition-medium);
+}
+.form-check.form-switch:last-of-type {
+    border-bottom: none;
+}
+.form-check.form-switch:hover {
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.form-check-label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+.form-check-label strong {
+    color: var(--text-dark);
+}
+.form-check-label p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    margin-left: 0;
+    background-color: #e9ecef;
+    border: none;
+    position: relative;
+    transition: var(--transition-fast);
+    flex-shrink: 0;
+}
+.form-check-input:checked {
+    background: var(--gradient-success);
+}
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+.form-check-input::before {
+    content: '';
+    position: absolute;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: white;
+    top: 0.15rem;
+    left: 0.15rem;
+    transition: var(--transition-fast);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.form-check-input:checked::before {
+    transform: translateX(1.5rem);
+}
+
+/* Buttons */
+.btn-form-primary {
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    color: white;
+    transition: var(--transition-medium);
+    box-shadow: var(--shadow-soft);
+}
+.btn-form-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+.btn-form-secondary {
+    background: white;
+    color: var(--text-light);
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: var(--transition-medium);
+}
+.btn-form-secondary:hover {
+    transform: translateY(-2px);
+    border-color: var(--text-light);
+    color: var(--text-dark);
+    box-shadow: var(--shadow-soft);
+}
