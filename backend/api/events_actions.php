@@ -104,6 +104,16 @@ try {
             }
 
             $pdo->commit();
+            // --- NEW NOTIFICATION BLOCK ---
+            try {
+                $mailer = new \App\Services\Mailer();
+                $notificationManager = new \App\Services\NotificationManager($mailer);
+                $notificationManager->sendRSVPConfirmation($user_id, $event_id, $new_status);
+            } catch (Exception $e) {
+                // Log notification error but don't fail the request
+                error_log("Failed to send RSVP notification: " . $e->getMessage());
+            }
+            // --- END NEW BLOCK ---
             echo json_encode(['success' => true, 'message' => 'Your RSVP has been updated!', 'new_status' => $new_status]);
             break;
 
