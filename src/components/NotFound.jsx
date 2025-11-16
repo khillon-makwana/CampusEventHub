@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div style={{ padding: '2rem' }}>
       <h2>404 - Page Not Found</h2>
-      <button onClick={() => nav('/')}>Go to Login</button>
+      <button onClick={() => nav('/dashboard')}>Go to Dashboard</button>
     </div>
   );
 }
