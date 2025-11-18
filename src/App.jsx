@@ -71,6 +71,17 @@ function App() {
           path="/notification-settings" 
           element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} 
         />
+
+        {/* NEW ROUTE FOR THE ANALYTICS PAGE */}
+        <Route 
+          path="/analytics" 
+          element={<ProtectedRoute><Analytics /></ProtectedRoute>} 
+        />
+        {/* Allow filtering by a specific event */}
+        <Route 
+          path="/analytics/:id" 
+          element={<ProtectedRoute><Analytics /></ProtectedRoute>} 
+        />
         {/* --- END NEW ROUTES --- */}
 
         {/* 404 */}

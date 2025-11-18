@@ -105,6 +105,7 @@ export default function Navbar({ user, unreadCount }) { // FIX: Use unreadCount
                             <NavLink to="/my-events" path={currentPath} icon="fa-list">MY EVENTS</NavLink>
                             <NavLink to="/profile" path={currentPath} icon="fa-user">MY PROFILE</NavLink>
                             <NavLink to="/tickets" path={currentPath} icon="fa-ticket-alt">TICKETS</NavLink>
+                            <NavLink to="/analytics" path={currentPath} icon="fa-chart-pie">ANALYTICS</NavLink>
                         </ul>
                     </nav>
 
