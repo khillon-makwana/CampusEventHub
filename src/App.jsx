@@ -15,7 +15,7 @@ import EditEvent from './components/Events/EditEvent';
 import MyEvents from './components/Events/MyEvents'; 
 import EventDetails from './components/Events/EventDetails'; 
 import ManageRsvps from './components/Events/ManageRsvps'; 
-//import Profile from './components/Profile/Profile'; 
+import Profile from './components/Profile/Profile'; 
 import MyTickets from './components/Tickets/MyTickets';
 import ViewTicket from './components/Tickets/ViewTicket';
 import ManageTickets from './components/Events/ManageTickets';
@@ -24,6 +24,7 @@ import NotificationSettings from './components/Notifications/NotificationSetting
 import PurchaseTicket from './components/Tickets/PurchaseTicket';
 import PaymentStatus from './components/Tickets/PaymentStatus';
 import LandingPage from './components/Landing/LandingPage';
+import Analytics from './components/Events/Analytics';
 
 function App() {
   return (
@@ -47,7 +48,7 @@ function App() {
         <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
         <Route path="/manage-rsvps/:id" element={<ProtectedRoute><ManageRsvps /></ProtectedRoute>} /> 
         <Route path="/manage-tickets/:id" element={<ProtectedRoute><ManageTickets /></ProtectedRoute>} /> 
-        {/* <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */}
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
         <Route path="/tickets/:id" element={<ProtectedRoute><ViewTicket /></ProtectedRoute>} />
         {/* <Route path="/notifications" element={<ProtectedRoute><ComingSoon page="Notifications" /></ProtectedRoute>} /> */}
