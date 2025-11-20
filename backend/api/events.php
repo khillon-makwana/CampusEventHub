@@ -4,35 +4,39 @@ require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
-use App\Models\User; // <-- Added User model
+use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
-session_start(); // <-- Session started
+session_start();
 
-// --- ADDED THIS BLOCK to get user data ---
+// --- Get User Data ---
 $user = null;
 if (isset($_SESSION['user_id'])) {
     $userModel = new User();
     $user = $userModel->findById((int)$_SESSION['user_id']);
     if (!$user) {
-        $user = null; // Unset if user not found
+        $user = null; 
     }
 }
-// --- END OF BLOCK ---
 
 try {
     $pdo = Database::getConnection();
 
     // --- 1. Get Filters & Pagination ---
-    $page = (int)($_GET['page'] ?? 1);
+    // Sanitize inputs
+    $inputs = Validator::sanitize($_GET);
+
+    $page = (int)($inputs['page'] ?? 1);
     $limit = 12;
     $offset = ($page - 1) * $limit;
 
-    $search = $_GET['search'] ?? '';
-    $category = $_GET['category'] ?? '';
-    $location = $_GET['location'] ?? '';
-    $sort = $_GET['sort'] ?? 'date_asc';
+    $search = $inputs['search'] ?? '';
+    $category = $inputs['category'] ?? '';
+    $location = $inputs['location'] ?? '';
+    $sort = $inputs['sort'] ?? 'date_asc';
 
-    // --- 2. Build Queries (FIXED TABLE NAMES) ---
+    // --- 2. Build Queries ---
     $count_query = "
         SELECT COUNT(DISTINCT e.id)
         FROM events e 
@@ -41,7 +45,6 @@ try {
         WHERE e.status IN ('upcoming', 'ongoing')
     ";
 
-    // *** FIX: Reverted to SUM(ea.quantity) and fixed table name ***
     $data_query = "
         SELECT e.*, u.fullname as organizer_name,
                COALESCE(SUM(ea.quantity), 0) as attendee_count, 
@@ -122,9 +125,9 @@ try {
     $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     // --- 7. Send JSON Response ---
-    echo json_encode([
+    Response::json([
         'success' => true,
-        'user' => $user, // <-- Added user object to response
+        'user' => $user,
         'events' => $events,
         'categories' => $categories,
         'pagination' => [
@@ -142,17 +145,7 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Database error',
-        'message' => $e->getMessage()
-    ]);
+    Response::error('Database error', 500, $e->getMessage());
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Server error',
-        'message' => $e->getMessage()
-    ]);
+    Response::error('Server error', 500, $e->getMessage());
 }
