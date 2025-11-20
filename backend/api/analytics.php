@@ -7,13 +7,13 @@ use App\Config\Database;
 use App\Models\User;
 use App\Services\Mailer;
 use App\Services\NotificationManager;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    Response::error('Unauthorized', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -43,9 +43,7 @@ try {
         $stmt_check = $pdo->prepare("SELECT id FROM events WHERE id = ? AND user_id = ?");
         $stmt_check->execute([$event_id, $user_id]);
         if ($stmt_check->fetch() === false) {
-            http_response_code(403);
-            echo json_encode(['error' => 'You do not have permission to view this event.']);
-            exit;
+            Response::error('You do not have permission to view this event.', 403);
         }
         // User owns it, so update the queries
         $event_condition = "e.id = ?";
@@ -127,7 +125,7 @@ try {
     }
     
     // 6. Send Combined Response
-    echo json_encode([
+    Response::json([
         'success' => true,
         'user' => $user,
         'unread_count' => $unread_count,
@@ -138,6 +136,5 @@ try {
     ]);
 
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    Response::error('Server error: ' . $e->getMessage(), 500, ['trace' => $e->getTraceAsString()]);
 }

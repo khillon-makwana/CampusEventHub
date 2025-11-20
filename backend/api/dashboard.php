@@ -8,13 +8,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Models\User;
 use App\Models\Event;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    Response::error('Unauthorized', 401);
 }
 
 try {
@@ -24,9 +24,7 @@ try {
     $user = $userModel->findById((int)$_SESSION['user_id']);
     
     if (!$user) {
-        http_response_code(404);
-        echo json_encode(['error' => 'User not found']);
-        exit;
+        Response::error('User not found', 404);
     }
 
     // Get user's upcoming events
@@ -38,7 +36,7 @@ try {
     // Get event statistics
     $eventStats = $eventModel->getUserEventStats((int)$_SESSION['user_id']);
 
-    $response = [
+    Response::json([
         'success' => true,
         'user' => [
             'id' => (int)$user['id'],
@@ -49,11 +47,8 @@ try {
         'userEvents' => $userEvents,
         'recommendedEvents' => $recommendedEvents,
         'stats' => $eventStats
-    ];
-
-    echo json_encode($response);
+    ]);
 
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+    Response::error('Server error: ' . $e->getMessage(), 500);
 }

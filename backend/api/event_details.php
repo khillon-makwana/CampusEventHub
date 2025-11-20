@@ -5,15 +5,15 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. GET EVENT ID
 $event_id = (int)($_GET['id'] ?? 0);
 if ($event_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid event ID.']);
-    exit;
+    Response::error('Invalid event ID.', 400);
 }
 
 // 2. INITIALIZE VARIABLES
@@ -52,9 +52,7 @@ try {
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$event) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Event not found or not available']);
-        exit;
+        Response::error('Event not found or not available', 404);
     }
 
     // 5. GET USER-SPECIFIC DATA (if logged in)
@@ -106,7 +104,7 @@ try {
     $similar_events = $stmt_similar->fetchAll(PDO::FETCH_ASSOC);
 
     // 8. SEND COMBINED JSON RESPONSE
-    echo json_encode([
+    Response::json([
         'success' => true,
         'user' => $user,
         'event' => $event,
@@ -118,6 +116,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+    Response::error('Database error', 500, ['message' => $e->getMessage()]);
 }

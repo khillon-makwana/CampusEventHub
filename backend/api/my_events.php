@@ -5,14 +5,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -69,7 +69,7 @@ try {
     }
 
     // 5. SEND JSON RESPONSE
-    echo json_encode([
+    Response::json([
         'success' => true,
         'user' => $user,
         'events' => $events,
@@ -77,10 +77,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Database error',
-        'message' => $e->getMessage()
-    ]);
+    Response::error('Database error', 500, ['message' => $e->getMessage()]);
 }

@@ -4,6 +4,8 @@ require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 try {
     $pdo = Database::getConnection();
@@ -22,9 +24,8 @@ try {
     $stmt->execute();
     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode(['success' => true, 'events' => $events]);
+    Response::json(['success' => true, 'events' => $events]);
 
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+    Response::error('Server error: ' . $e->getMessage(), 500);
 }

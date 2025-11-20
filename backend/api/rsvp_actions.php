@@ -4,14 +4,14 @@ require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized.']);
-    exit;
+    Response::error('Unauthorized.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -19,9 +19,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $rsvp_id = (int)($_GET['rsvp_id'] ?? 0);
 
 if ($rsvp_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid RSVP ID.']);
-    exit;
+    Response::error('Invalid RSVP ID.', 400);
 }
 
 try {
@@ -33,7 +31,7 @@ try {
     $rsvp = $stmt_rsvp->fetch(PDO::FETCH_ASSOC);
 
     if (!$rsvp) {
-        throw new Exception('RSVP not found.', 404);
+        Response::error('RSVP not found.', 404);
     }
 
     $event_id = (int)$rsvp['event_id'];
@@ -45,23 +43,23 @@ try {
     $event = $stmt_owner->fetch(PDO::FETCH_ASSOC);
 
     if (!$event) {
-        throw new Exception("You are not authorized to manage this event's RSVPs.", 403);
+        Response::error("You are not authorized to manage this event's RSVPs.", 403);
     }
 
     // 4. HANDLE 'PUT' REQUEST (Edit RSVP)
     if ($method === 'POST') { // React/HTML forms don't always send PUT
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = Validator::sanitize(json_decode(file_get_contents('php://input'), true));
         $status = (string)($data['status'] ?? '');
         $category_id = (int)($data['category_id'] ?? 0);
 
         if (empty($status) || $category_id <= 0) {
-            throw new Exception('Invalid status or category.', 422);
+            Response::error('Invalid status or category.', 422);
         }
 
         $update = $pdo->prepare("UPDATE event_attendees SET status = ?, category_id = ? WHERE id = ?");
         $update->execute([$status, $category_id, $rsvp_id]);
 
-        echo json_encode(['success' => true, 'message' => 'RSVP updated.']);
+        Response::json(['success' => true, 'message' => 'RSVP updated.']);
     } 
     // 5. HANDLE 'DELETE' REQUEST
     elseif ($method === 'DELETE') {
@@ -86,11 +84,10 @@ try {
 
         $pdo->commit();
 
-        echo json_encode(['success' => true, 'message' => 'Attendee removed.']);
+        Response::json(['success' => true, 'message' => 'Attendee removed.']);
     } 
     else {
-        http_response_code(405);
-        echo json_encode(['error' => 'Method Not Allowed.']);
+        Response::error('Method Not Allowed.', 405);
     }
 
 } catch (Exception $e) {
@@ -98,9 +95,5 @@ try {
         $pdo->rollBack();
     }
     $code = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
-    http_response_code($code);
-    echo json_encode([
-        'success' => false, 
-        'error' => $e->getMessage()
-    ]);
+    Response::error($e->getMessage(), $code);
 }
