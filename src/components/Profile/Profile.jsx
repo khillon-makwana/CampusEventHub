@@ -1,8 +1,21 @@
 // src/components/Profile/Profile.jsx
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { apiGet, apiPost } from '../../api';
 import Layout from '../Layout';
-import './Profile.css'; // Import the new CSS
+import './Profile.css';
+
+// Animated Section Wrapper
+const AnimatedSection = ({ children, className = '', delay = 0.1 }) => (
+    <motion.div
+        className={className}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20, delay }}
+    >
+        {children}
+    </motion.div>
+);
 
 export default function Profile() {
     const [user, setUser] = useState(null);
@@ -52,6 +65,7 @@ export default function Profile() {
                 setUser(data.user); // Update user in layout
                 setFullname(data.user.fullname);
                 setProfileSuccess(data.message);
+                setTimeout(() => setProfileSuccess(''), 3000);
             }
         } catch (err) {
             setProfileError(err.message);
@@ -71,6 +85,7 @@ export default function Profile() {
             if (data.success) {
                 setPwSuccess(data.message);
                 setPwData({ current_password: '', new_password: '', confirm_password: '' }); // Clear fields
+                setTimeout(() => setPwSuccess(''), 3000);
             }
         } catch (err) {
             setPwError(err.message);
@@ -78,7 +93,7 @@ export default function Profile() {
             setPwLoading(false);
         }
     };
-    
+
     // Handle password form input changes
     const handlePwChange = (e) => {
         setPwData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -87,8 +102,8 @@ export default function Profile() {
     if (loading) {
         return (
             <Layout user={user}>
-                <div className="container mt-5 profile-container text-center">
-                    <div className="spinner-border text-primary" role="status">
+                <div className="container mt-5 text-center" style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
+                    <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
                         <span className="visually-hidden">Loading...</span>
                     </div>
                 </div>
@@ -99,79 +114,162 @@ export default function Profile() {
     return (
         <Layout user={user}>
             <div className="container mt-5 profile-container">
-                <div className="profile-header">
-                    <h2>👤 My Profile</h2>
+                <AnimatedSection className="profile-header">
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+                        className="mb-3"
+                    >
+                        <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-25 text-primary" style={{ width: '80px', height: '80px', fontSize: '2.5rem' }}>
+                            {user?.fullname?.charAt(0).toUpperCase() || <i className="fas fa-user"></i>}
+                        </div>
+                    </motion.div>
+                    <h2>My Profile</h2>
                     <p>Manage your account settings and preferences</p>
+                </AnimatedSection>
+
+                <div className="row">
+                    <div className="col-lg-6">
+                        {/* Profile Update Form */}
+                        <AnimatedSection delay={0.2} className="profile-card">
+                            <h5><i className="fas fa-user-edit"></i> Profile Information</h5>
+
+                            <AnimatePresence>
+                                {profileSuccess && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="alert alert-success profile-alert"
+                                    >
+                                        <i className="fas fa-check-circle"></i> {profileSuccess}
+                                    </motion.div>
+                                )}
+                                {profileError && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="alert alert-danger profile-alert"
+                                    >
+                                        <i className="fas fa-exclamation-circle"></i> {profileError}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <form onSubmit={handleProfileSubmit}>
+                                <div className="mb-4">
+                                    <label className="form-label">Full Name</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-user"></i></span>
+                                        <input type="text" name="fullname" className="form-control border-start-0 ps-0"
+                                            value={fullname} onChange={e => setFullname(e.target.value)} required />
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label">Email Address</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-envelope"></i></span>
+                                        <input type="email" className="form-control border-start-0 ps-0" value={user?.email || ''} readOnly />
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label d-block">Verification Status</label>
+                                    {user?.is_verified ? (
+                                        <div className="status-indicator verified">
+                                            <i className="fas fa-check-circle"></i> Verified Account
+                                        </div>
+                                    ) : (
+                                        <div className="status-indicator unverified">
+                                            <i className="fas fa-times-circle"></i> Not Verified
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="member-since mb-4">
+                                    <i className="fas fa-calendar-alt"></i>
+                                    <div>
+                                        <small className="d-block text-uppercase" style={{ fontSize: '0.7rem', letterSpacing: '1px' }}>Member Since</small>
+                                        <strong>{user ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '...'}</strong>
+                                    </div>
+                                </div>
+
+                                <button type="submit" className="btn btn-profile-primary" disabled={profileLoading}>
+                                    {profileLoading ? <span className="spinner-border spinner-border-sm"></span> : <i className="fas fa-save"></i>}
+                                    {profileLoading ? 'Updating...' : 'Save Changes'}
+                                </button>
+                            </form>
+                        </AnimatedSection>
+                    </div>
+
+                    <div className="col-lg-6">
+                        {/* Password Change Form */}
+                        <AnimatedSection delay={0.3} className="profile-card">
+                            <h5><i className="fas fa-lock"></i> Change Password</h5>
+
+                            <AnimatePresence>
+                                {pwSuccess && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="alert alert-success profile-alert"
+                                    >
+                                        <i className="fas fa-check-circle"></i> {pwSuccess}
+                                    </motion.div>
+                                )}
+                                {pwError && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="alert alert-danger profile-alert"
+                                    >
+                                        <i className="fas fa-exclamation-circle"></i> {pwError}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <form onSubmit={handlePasswordSubmit}>
+                                <div className="mb-4">
+                                    <label className="form-label">Current Password</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-key"></i></span>
+                                        <input type="password" name="current_password" className="form-control border-start-0 ps-0"
+                                            value={pwData.current_password} onChange={handlePwChange} required />
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label">New Password</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-lock"></i></span>
+                                        <input type="password" name="new_password" className="form-control border-start-0 ps-0"
+                                            value={pwData.new_password} onChange={handlePwChange} required />
+                                    </div>
+                                    <small className="text-muted mt-1 d-block"><i className="fas fa-info-circle me-1"></i> Must be at least 6 characters</small>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label">Confirm New Password</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-check-double"></i></span>
+                                        <input type="password" name="confirm_password" className="form-control border-start-0 ps-0"
+                                            value={pwData.confirm_password} onChange={handlePwChange} required />
+                                    </div>
+                                </div>
+
+                                <button type="submit" className="btn btn-profile-primary" disabled={pwLoading}>
+                                    {pwLoading ? <span className="spinner-border spinner-border-sm"></span> : <i className="fas fa-shield-alt"></i>}
+                                    {pwLoading ? 'Updating...' : 'Update Password'}
+                                </button>
+                            </form>
+                        </AnimatedSection>
+                    </div>
                 </div>
-
-                {/* Profile Update Form */}
-                <form onSubmit={handleProfileSubmit} className="card profile-card p-4 mb-4">
-                    <h5>📝 Profile Information</h5>
-                    
-                    {profileSuccess && <div className="alert alert-success profile-alert"><strong>✓ Success!</strong> {profileSuccess}</div>}
-                    {profileError && <div className="alert alert-danger profile-alert"><strong>✗ Error!</strong> {profileError}</div>}
-
-                    <div className="mb-3">
-                        <label className="form-label">Full Name</label>
-                        <input type="text" name="fullname" className="form-control" 
-                            value={fullname} onChange={e => setFullname(e.target.value)} required />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">Email Address</label>
-                        <input type="email" className="form-control" value={user?.email || ''} readOnly />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label d-block">Email Verification Status</label>
-                        {user?.is_verified ? (
-                            <span className="badge bg-success status-indicator verified">✓ Verified</span>
-                        ) : (
-                            <span className="badge bg-danger status-indicator unverified">✗ Not Verified</span>
-                        )}
-                    </div>
-
-                    <div className="member-since mb-4">
-                        <strong>🗓️ Member Since:</strong> {user ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '...'}
-                    </div>
-
-                    <button type="submit" name="update_profile" className="btn btn-primary w-100" disabled={profileLoading}>
-                        {profileLoading ? <span className="spinner-border spinner-border-sm me-2"></span> : '💾'}
-                        {profileLoading ? 'Updating...' : 'Update Profile'}
-                    </button>
-                </form>
-
-                {/* Password Change Form */}
-                <form onSubmit={handlePasswordSubmit} className="card profile-card p-4 password-section">
-                    <h5>🔒 Change Password</h5>
-
-                    {pwSuccess && <div className="alert alert-success profile-alert"><strong>✓ Success!</strong> {pwSuccess}</div>}
-                    {pwError && <div className="alert alert-danger profile-alert"><strong>✗ Error!</strong> {pwError}</div>}
-
-                    <div className="mb-3">
-                        <label className="form-label">Current Password</label>
-                        <input type="password" name="current_password" className="form-control" 
-                            value={pwData.current_password} onChange={handlePwChange} required />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">New Password</label>
-                        <input type="password" name="new_password" className="form-control" 
-                            value={pwData.new_password} onChange={handlePwChange} required />
-                        <small className="text-muted">Must be at least 6 characters</small>
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">Confirm New Password</label>
-                        <input type="password" name="confirm_password" className="form-control" 
-                            value={pwData.confirm_password} onChange={handlePwChange} required />
-                    </div>
-
-                    <button type="submit" name="change_password" className="btn btn-primary w-100" disabled={pwLoading}>
-                        {pwLoading ? <span className="spinner-border spinner-border-sm me-2"></span> : '🔑'}
-                        {pwLoading ? 'Updating...' : 'Update Password'}
-                    </button>
-                </form>
             </div>
         </Layout>
     );

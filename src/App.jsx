@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import ForgotPassword from './components/Auth/ForgotPassword';
@@ -9,13 +10,13 @@ import VerifyEmail from './components/Auth/VerifyEmail';
 import Dashboard from './components/Dashboard/Dashboard';
 import NotFound from './components/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
-import Events from './components/Events/Events'; 
+import Events from './components/Events/Events';
 import CreateEvent from './components/Events/CreateEvent';
 import EditEvent from './components/Events/EditEvent';
-import MyEvents from './components/Events/MyEvents'; 
-import EventDetails from './components/Events/EventDetails'; 
-import ManageRsvps from './components/Events/ManageRsvps'; 
-import Profile from './components/Profile/Profile'; 
+import MyEvents from './components/Events/MyEvents';
+import EventDetails from './components/Events/EventDetails';
+import ManageRsvps from './components/Events/ManageRsvps';
+import Profile from './components/Profile/Profile';
 import MyTickets from './components/Tickets/MyTickets';
 import ViewTicket from './components/Tickets/ViewTicket';
 import ManageTickets from './components/Events/ManageTickets';
@@ -26,85 +27,91 @@ import PaymentStatus from './components/Tickets/PaymentStatus';
 import LandingPage from './components/Landing/LandingPage';
 import Analytics from './components/Events/Analytics';
 
-function App() {
+// Page Transition Wrapper
+const PageTransition = ({ children }) => {
   return (
-    <Router>
-      <Routes>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="w-100"
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Animated Routes Component
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+        <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
+        <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
+        <Route path="/verify-email" element={<PageTransition><VerifyEmail /></PageTransition>} />
 
         {/* Protected Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-        <Route path="/create-event" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
-        <Route path="/edit-event/:id" element={<ProtectedRoute><EditEvent /></ProtectedRoute>} />
-        <Route path="/event/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-        <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
-        <Route path="/manage-rsvps/:id" element={<ProtectedRoute><ManageRsvps /></ProtectedRoute>} /> 
-        <Route path="/manage-tickets/:id" element={<ProtectedRoute><ManageTickets /></ProtectedRoute>} /> 
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
-        <Route path="/tickets/:id" element={<ProtectedRoute><ViewTicket /></ProtectedRoute>} />
-        {/* <Route path="/notifications" element={<ProtectedRoute><ComingSoon page="Notifications" /></ProtectedRoute>} /> */}
+        <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/events" element={<ProtectedRoute><PageTransition><Events /></PageTransition></ProtectedRoute>} />
+        <Route path="/create-event" element={<ProtectedRoute><PageTransition><CreateEvent /></PageTransition></ProtectedRoute>} />
+        <Route path="/edit-event/:id" element={<ProtectedRoute><PageTransition><EditEvent /></PageTransition></ProtectedRoute>} />
+        <Route path="/event/:id" element={<ProtectedRoute><PageTransition><EventDetails /></PageTransition></ProtectedRoute>} />
+        <Route path="/my-events" element={<ProtectedRoute><PageTransition><MyEvents /></PageTransition></ProtectedRoute>} />
+        <Route path="/manage-rsvps/:id" element={<ProtectedRoute><PageTransition><ManageRsvps /></PageTransition></ProtectedRoute>} />
+        <Route path="/manage-tickets/:id" element={<ProtectedRoute><PageTransition><ManageTickets /></PageTransition></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+        <Route path="/tickets" element={<ProtectedRoute><PageTransition><MyTickets /></PageTransition></ProtectedRoute>} />
+        <Route path="/tickets/:id" element={<ProtectedRoute><PageTransition><ViewTicket /></PageTransition></ProtectedRoute>} />
 
-        {/* --- NEW PAYMENT FLOW ROUTES --- */}
-        <Route 
-          path="/purchase/:eventId" 
-          element={<ProtectedRoute><PurchaseTicket /></ProtectedRoute>} 
+        <Route
+          path="/purchase/:eventId"
+          element={<ProtectedRoute><PageTransition><PurchaseTicket /></PageTransition></ProtectedRoute>}
         />
-        <Route 
-          path="/payment-status/:paymentId" 
-          element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} 
-        /> 
-        {/* --- END NEW ROUTES --- */}
-        {/* --- ADDED NOTIFICATION ROUTES --- */}
-        <Route 
-          path="/notifications" 
-          element={<ProtectedRoute><Notifications /></ProtectedRoute>} 
+        <Route
+          path="/payment-status/:paymentId"
+          element={<ProtectedRoute><PageTransition><PaymentStatus /></PageTransition></ProtectedRoute>}
         />
-        <Route 
-          path="/notification-settings" 
-          element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} 
+
+        <Route
+          path="/notifications"
+          element={<ProtectedRoute><PageTransition><Notifications /></PageTransition></ProtectedRoute>}
+        />
+        <Route
+          path="/notification-settings"
+          element={<ProtectedRoute><PageTransition><NotificationSettings /></PageTransition></ProtectedRoute>}
         />
 
         {/* NEW ROUTE FOR THE ANALYTICS PAGE */}
-        <Route 
-          path="/analytics" 
-          element={<ProtectedRoute><Analytics /></ProtectedRoute>} 
+        <Route
+          path="/analytics"
+          element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>}
         />
         {/* Allow filtering by a specific event */}
-        <Route 
-          path="/analytics/:id" 
-          element={<ProtectedRoute><Analytics /></ProtectedRoute>} 
+        <Route
+          path="/analytics/:id"
+          element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>}
         />
         {/* --- END NEW ROUTES --- */}
 
         {/* 404 */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
-    </Router>
+    </AnimatePresence>
   );
-}
+};
 
-// Temporary placeholder component
-function ComingSoon({ page }) {
+function App() {
   return (
-    <div style={{ padding: '4rem 0', textAlign: 'center' }}>
-      <div className="container">
-        <i className="fas fa-tools fa-4x text-primary mb-4"></i>
-        <h2>{page} Page</h2>
-        <p className="lead">Coming soon! This page is under construction.</p>
-        <a href="/dashboard" className="btn btn-primary mt-3">
-          <i className="fas fa-home me-2"></i>Back to Dashboard
-        </a>
-      </div>
-    </div>
+    <Router>
+      <AnimatedRoutes />
+    </Router>
   );
 }
 

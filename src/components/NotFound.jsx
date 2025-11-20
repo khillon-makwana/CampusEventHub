@@ -1,36 +1,37 @@
+// src/components/NotFound.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Layout from './Layout';
+import { motion } from 'framer-motion';
+import './NotFound.css';
 
 export default function NotFound() {
-  const nav = useNavigate();
-
   return (
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '70vh',
-    padding: '2rem',
-    textAlign: 'center'
-  }}>
-    <h1 style={{ fontSize: '6rem', margin: '0', color: '#e74c3c', fontWeight: '300' }}>404</h1>
-    <h2 style={{ margin: '1rem 0', color: '#2c3e50' }}>Page Not Found</h2>
-    <p style={{ color: '#7f8c8d', marginBottom: '2rem' }}>The page you're looking for doesn't exist.</p>
-    <button 
-      onClick={() => nav('/dashboard')}
-      style={{
-        background: '#3498db',
-        color: 'white',
-        border: 'none',
-        padding: '12px 30px',
-        borderRadius: '25px',
-        fontSize: '1rem',
-        cursor: 'pointer'
-      }}
-    >
-      Go to Dashboard
-    </button>
-  </div>
-);
+    <Layout>
+      <div className="not-found-container">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+        >
+          <h1 className="error-code">404</h1>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h2 className="error-title">Page Not Found</h2>
+          <p className="error-message">
+            Oops! The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+          </p>
+
+          <Link to="/" className="btn-home">
+            <i className="fas fa-home"></i> Go to Home
+          </Link>
+        </motion.div>
+      </div>
+    </Layout>
+  );
 }

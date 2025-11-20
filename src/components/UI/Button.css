@@ -1,0 +1,87 @@
+/* src/components/UI/Button.css */
+
+.btn-ui {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.75rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ui:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Variants */
+.btn-ui-primary {
+    background: var(--primary-600);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+.btn-ui-primary:hover:not(:disabled) {
+    background: var(--primary-700);
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+.btn-ui-secondary {
+    background: var(--secondary-500);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.2);
+}
+
+.btn-ui-secondary:hover:not(:disabled) {
+    background: var(--secondary-600);
+    box-shadow: 0 10px 15px -3px rgba(244, 63, 94, 0.3);
+}
+
+.btn-ui-outline {
+    background: transparent;
+    border: 2px solid var(--slate-200);
+    color: var(--slate-600);
+}
+
+.btn-ui-outline:hover:not(:disabled) {
+    border-color: var(--primary-600);
+    color: var(--primary-600);
+    background: var(--primary-50);
+}
+
+.btn-ui-ghost {
+    background: transparent;
+    color: var(--slate-600);
+}
+
+.btn-ui-ghost:hover:not(:disabled) {
+    background: var(--slate-100);
+    color: var(--slate-900);
+}
+
+/* Sizes */
+.btn-ui-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn-ui-md {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.btn-ui-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+}

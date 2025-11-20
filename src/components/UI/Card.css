@@ -1,0 +1,45 @@
+/* src/components/UI/Card.css */
+
+.card-ui {
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Variants */
+.card-ui-surface {
+    background: var(--bg-surface);
+    border: 1px solid var(--slate-100);
+    box-shadow: var(--shadow-md);
+}
+
+.card-ui-glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Padding */
+.card-ui-p-none {
+    padding: 0;
+}
+
+.card-ui-p-sm {
+    padding: 1rem;
+}
+
+.card-ui-p-md {
+    padding: 1.5rem;
+}
+
+.card-ui-p-lg {
+    padding: 2rem;
+}
+
+/* Hover State (handled by Framer Motion mostly, but base CSS here) */
+.card-ui:hover {
+    border-color: var(--primary-200);
+}

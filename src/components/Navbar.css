@@ -1,178 +1,193 @@
 /* src/components/Navbar.css */
 
-/* --- Root Variables (from your theme) --- */
-:root {
-    --primary-color: #4F46E5;
-    --primary-hover: #7C3AED;
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --text-dark: #2d3748;
-    --text-light: #718096;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* --- Main Header (Glassmorphism) --- */
 .main-header {
-    /* This is the "glass" effect. It's semi-transparent white 
-      with a backdrop-filter to blur content behind it.
-    */
     background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* On-scroll, it becomes more opaque */
+/* On-scroll state */
 .main-header.scrolled {
     background: rgba(255, 255, 255, 0.95);
-    box-shadow: var(--shadow-soft);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
 /* --- Brand Logo --- */
 .brand-logo {
-    font-family: 'Pacifico', cursive;
-    font-size: 1.8rem;
-    background: var(--gradient-primary);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--primary-600), var(--secondary-500));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    display: flex;
+    align-items: center;
     text-decoration: none;
-    transition: var(--transition-medium);
+    letter-spacing: -0.03em;
+    transition: opacity 0.2s;
+}
+
+.brand-logo:hover {
+    opacity: 0.9;
+}
+
+.brand-logo i {
+    background: linear-gradient(135deg, var(--primary-600), var(--secondary-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-right: 0.5rem;
 }
 
 /* --- Navigation Links --- */
 .nav-link-custom {
-    color: var(--text-light) !important;
-    font-weight: 600;
+    color: var(--slate-600) !important;
+    font-family: var(--font-sans);
+    font-weight: 500;
     font-size: 0.95rem;
-    letter-spacing: 0.5px;
-    transition: var(--transition-fast);
+    padding: 0.6rem 1.1rem !important;
+    border-radius: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    padding: 0.75rem 1.25rem !important;
-    border-radius: var(--radius-md);
-    margin: 0 0.25rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.nav-link-custom i {
-    opacity: 0.8;
-}
-
 .nav-link-custom:hover {
-    color: var(--text-dark) !important;
-    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-600) !important;
+    background: rgba(79, 70, 229, 0.08);
+    transform: translateY(-1px);
 }
 
 .nav-link-custom.active {
-    color: var(--primary-color) !important;
-    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-700) !important;
+    font-weight: 600;
+    background: rgba(79, 70, 229, 0.12);
 }
 
-/* This is the sliding active indicator. 
-  Framer Motion will animate its `layoutId`.
-*/
+/* Active Indicator (Dot) */
 .active-indicator {
     position: absolute;
-    bottom: -1px; /* Sits just above the header's border */
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-primary);
-    border-radius: 3px;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--primary-600);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.6);
 }
 
 /* --- User Section --- */
 .user-section {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    background: rgba(240, 240, 240, 0.6);
+    gap: 1.25rem;
+    padding: 0.35rem;
+    padding-left: 1rem;
     border-radius: 9999px;
-    padding: 0.5rem 0.5rem 0.5rem 1rem;
-    transition: var(--transition-medium);
-}
-.user-section:hover {
-    background: rgba(220, 220, 220, 0.8);
-    box-shadow: var(--shadow-soft);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
 }
 
 .notification-bell {
     position: relative;
-    cursor: pointer;
-    color: var(--text-light);
-    transition: var(--transition-fast);
+    color: var(--slate-500);
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
+
 .notification-bell:hover {
-    color: var(--text-dark);
+    color: var(--primary-600);
+    background: rgba(79, 70, 229, 0.1);
+    transform: rotate(15deg);
 }
+
 .notification-badge {
+    background: var(--danger) !important;
+    border: 2px solid white;
     font-size: 0.65rem;
     padding: 0.25em 0.5em;
-    animation: pulse 2s infinite;
-    position: absolute;
-    top: 0;
-    right: -5px;
-    transform: translate(50%, -50%);
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
 }
 
-@keyframes pulse {
-    0% { transform: scale(1) translate(50%, -50%); }
-    50% { transform: scale(1.1) translate(50%, -50%); }
-    100% { transform: scale(1) translate(50%, -50%); }
-}
-
+/* User Info */
 .user-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    cursor: pointer;
 }
 
-/* A premium avatar instead of an icon */
 .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, var(--primary-500), var(--secondary-500));
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    border: 2px solid white;
+    transition: transform 0.3s ease;
+}
+
+.user-section:hover .user-avatar {
+    transform: scale(1.05);
 }
 
 .user-name {
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--slate-800);
     font-size: 0.95rem;
 }
 
+/* Sign Out Button */
 .sign-out-btn {
-    background: var(--gradient-primary);
-    color: white;
-    border: none;
+    background: white;
+    color: var(--slate-600);
+    border: 1px solid var(--slate-200);
     border-radius: 9999px;
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
     font-weight: 600;
-    transition: var(--transition-medium);
-    box-shadow: var(--shadow-soft);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-sm);
 }
+
 .sign-out-btn:hover {
-    background: var(--gradient-secondary);
-    transform: scale(1.05);
-    box-shadow: var(--shadow-medium);
+    background: var(--danger);
     color: white;
+    border-color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.sign-out-btn i {
+    transition: transform 0.3s;
+}
+
+.sign-out-btn:hover i {
+    transform: translateX(2px);
 }

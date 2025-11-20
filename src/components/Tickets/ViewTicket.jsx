@@ -1,6 +1,7 @@
 // src/components/Tickets/ViewTicket.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { apiGet } from '../../api';
 import Layout from '../Layout';
 import './ViewTicket.css';
@@ -18,17 +19,6 @@ const formatDate = (dateString) => {
         hour12: true
     });
 };
-
-// Info item component
-const InfoItem = ({ icon, label, value, children }) => (
-    <div className="info-item">
-        <div className="info-label">
-            <i className={`fas ${icon}`}></i>
-            {label}
-        </div>
-        <div className="info-value">{value || children}</div>
-    </div>
-);
 
 export default function ViewTicket() {
     const { id } = useParams();
@@ -67,14 +57,21 @@ export default function ViewTicket() {
         const ticketContainer = document.getElementById('ticketContainer');
         if (!ticketContainer) return;
 
+        // Temporarily remove transform for capture
+        const originalTransform = ticketContainer.style.transform;
+        ticketContainer.style.transform = 'none';
+
         html2canvas(ticketContainer, {
             scale: 2,
-            backgroundColor: '#f8f9fa',
+            backgroundColor: null,
             logging: false,
             useCORS: true
         }).then(canvas => {
+            // Restore transform
+            ticketContainer.style.transform = originalTransform;
+
             if (type === 'image') {
-                canvas.toBlob(function(blob) {
+                canvas.toBlob(function (blob) {
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.download = `ticket-${data.ticket.ticket_code}.png`;
@@ -101,8 +98,8 @@ export default function ViewTicket() {
     if (loading) {
         return (
             <Layout>
-                <div className="container text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
+                <div className="container text-center py-5" style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
+                    <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
                         <span className="visually-hidden">Loading...</span>
                     </div>
                 </div>
@@ -114,10 +111,7 @@ export default function ViewTicket() {
         return (
             <Layout>
                 <div className="container py-5">
-                    <div className="alert alert-danger" role="alert">
-                        <i className="fas fa-exclamation-triangle me-2"></i>
-                        {error}
-                    </div>
+                    <div className="alert alert-danger shadow-sm rounded-3">{error}</div>
                 </div>
             </Layout>
         );
@@ -129,191 +123,116 @@ export default function ViewTicket() {
 
     return (
         <Layout user={user}>
-            <div className="container">
-                <div className="d-flex justify-content-between align-items-center mb-4 no-print" style={{ marginTop: '2rem' }}>
-                    <h2 style={{ color: '#333', fontWeight: 600, margin: 0 }}>Your Event Ticket</h2>
-                    <Link to="/tickets" className="btn btn-secondary-custom">
-                        <i className="fas fa-arrow-left"></i>
-                        Back to Tickets
+            <div className="container mt-4 view-ticket-container">
+
+                {/* Header Actions */}
+                <div className="ticket-page-header no-print">
+                    <h2>Your Ticket</h2>
+                    <Link to="/tickets" className="btn-back-outline">
+                        <i className="fas fa-arrow-left"></i> Back to Tickets
                     </Link>
                 </div>
-                
-                {showCopyNotification && (
-                    <div className="copy-notification" style={{ display: 'flex' }}>
-                        <i className="fas fa-check-circle"></i>
-                        <span>Ticket code copied to clipboard!</span>
+
+                <AnimatePresence>
+                    {showCopyNotification && (
+                        <motion.div
+                            className="copy-toast"
+                            initial={{ opacity: 0, y: -20, x: 20 }}
+                            animate={{ opacity: 1, y: 0, x: 0 }}
+                            exit={{ opacity: 0, y: -20, x: 20 }}
+                        >
+                            <i className="fas fa-check-circle"></i>
+                            Ticket code copied!
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Ticket Visual */}
+                <motion.div
+                    className="ticket-visual"
+                    id="ticketContainer"
+                    initial={{ opacity: 0, y: 50, rotateX: -10 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                >
+                    {/* Header */}
+                    <div className="ticket-visual-header">
+                        <span className="ticket-type-badge">General Admission</span>
+                        <h1 className="ticket-event-title">{ticket.event_title}</h1>
+                        <p className="mb-0 text-white-50">Present this ticket at the entrance</p>
                     </div>
-                )}
 
-                <div className="ticket-wrapper">
-                    <div className="ticket-container" id="ticketContainer">
-                        <div className="ticket-pattern"></div>
-                        
-                        <div className="ticket-header">
-                            <h1>
-                                <i className="fas fa-ticket-alt" style={{ marginRight: '0.5rem' }}></i>
-                                EVENT TICKET
-                            </h1>
-                            <p className="event-title">{ticket.event_title}</p>
-                        </div>
+                    {/* Divider */}
+                    <div className="ticket-visual-divider">
+                        <div className="dashed-line"></div>
+                    </div>
 
-                        <div className="ticket-divider">
-                            <div className="ticket-divider-line"></div>
-                        </div>
-
-                        <div className="ticket-body">
-                            <div className="qr-section">
-                                <div className="qr-placeholder">
-                                    <i className="fas fa-qrcode"></i>
-                                </div>
+                    {/* Body */}
+                    <div className="ticket-visual-body">
+                        <div className="qr-container">
+                            <div className="qr-code-box">
+                                <i className="fas fa-qrcode"></i>
                             </div>
-                            
-                            <div 
-                                className="ticket-code" 
-                                id="ticketCode" 
+                        </div>
+
+                        <div className="ticket-code-display">
+                            <div
+                                className="code-text"
                                 onClick={copyTicketCode}
-                                title="Click to copy ticket code"
+                                title="Click to copy"
                             >
                                 {ticket.ticket_code}
                             </div>
-
-                            <div className="ticket-info">
-                                <div className="info-row">
-                                    <InfoItem 
-                                        icon="fa-calendar" 
-                                        label="Event" 
-                                        value={ticket.event_title} 
-                                    />
-                                    <InfoItem 
-                                        icon="fa-clock" 
-                                        label="Date & Time" 
-                                        value={formatDate(ticket.event_date)} 
-                                    />
-                                </div>
-                                <div className="info-row">
-                                    <InfoItem 
-                                        icon="fa-map-marker-alt" 
-                                        label="Location" 
-                                        value={ticket.location} 
-                                    />
-                                    <InfoItem 
-                                        icon="fa-user" 
-                                        label="Ticket Holder" 
-                                        value={ticket.user_name} 
-                                    />
-                                </div>
-                            </div>
-                            
-                            {ticket.amount > 0 && (
-                                <div className="ticket-info">
-                                    <div className="info-row">
-                                        <InfoItem 
-                                            icon="fa-money-bill-wave" 
-                                            label="Amount Paid" 
-                                            value={`KSh ${Number(ticket.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}`} 
-                                        />
-                                        <InfoItem 
-                                            icon="fa-receipt" 
-                                            label="Transaction ID" 
-                                            value={ticket.transaction_id || 'N/A'} 
-                                        />
-                                    </div>
-                                    <div className="info-row">
-                                        <InfoItem 
-                                            icon="fa-mobile-alt" 
-                                            label="M-Pesa Receipt" 
-                                            value={ticket.mpesa_receipt_number || 'N/A'} 
-                                        />
-                                        <InfoItem 
-                                            icon="fa-calendar-check" 
-                                            label="Purchase Date" 
-                                            value={formatDate(ticket.purchase_date)} 
-                                        />
-                                    </div>
-                                    <div className="info-row">
-                                        <InfoItem icon="fa-check-circle" label="Payment Status">
-                                            <span className={`status-badge status-${ticket.payment_status}`}>
-                                                {ticket.payment_status}
-                                            </span>
-                                        </InfoItem>
-                                        {ticket.quantity > 1 && (
-                                            <InfoItem 
-                                                icon="fa-ticket-alt" 
-                                                label="Tickets in Order" 
-                                                value={`${ticket.quantity} tickets`} 
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                            <span className="copy-hint">Tap code to copy</span>
                         </div>
 
-                        <div className="ticket-footer">
-                            <p style={{ margin: '0 0 8px 0' }}>
-                                <i className="fas fa-info-circle" style={{ marginRight: '0.5rem' }}></i>
-                                Please present this ticket at the event entrance
-                            </p>
-                            <p style={{ margin: 0 }}>
-                                Ticket ID: #{ticket.id} | {' '}
-                                <span className={`status-badge status-${ticket.status}`}>
-                                    {ticket.status}
-                                </span>
-                            </p>
+                        <div className="ticket-details-grid">
+                            <div className="detail-item">
+                                <span className="detail-label"><i className="far fa-calendar"></i> Date & Time</span>
+                                <span className="detail-value">{formatDate(ticket.event_date)}</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="detail-label"><i className="fas fa-map-marker-alt"></i> Location</span>
+                                <span className="detail-value">{ticket.location}</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="detail-label"><i className="far fa-user"></i> Attendee</span>
+                                <span className="detail-value">{ticket.user_name}</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="detail-label"><i className="fas fa-receipt"></i> Transaction ID</span>
+                                <span className="detail-value">{ticket.transaction_id || 'N/A'}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="action-buttons no-print" style={{ marginTop: '2rem' }}>
-                    <button 
-                        onClick={() => handleDownload('pdf')} 
-                        className="btn btn-primary-custom"
-                    >
-                        <i className="fas fa-file-pdf"></i>
-                        Download as PDF
+                    {/* Footer */}
+                    <div className="ticket-visual-footer">
+                        <div className="ticket-id">Ticket ID: #{ticket.id}</div>
+                        <span className={`status-pill ${ticket.status}`}>
+                            {ticket.status}
+                        </span>
+                    </div>
+                </motion.div>
+
+                {/* Action Buttons */}
+                <motion.div
+                    className="ticket-actions-bar no-print"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                >
+                    <button onClick={() => handleDownload('pdf')} className="btn-action btn-action-primary">
+                        <i className="fas fa-file-pdf"></i> Download PDF
                     </button>
-                    <button 
-                        onClick={() => handleDownload('image')} 
-                        className="btn btn-primary-custom"
-                    >
-                        <i className="fas fa-image"></i>
-                        Download as Image
+                    <button onClick={() => handleDownload('image')} className="btn-action btn-action-secondary">
+                        <i className="fas fa-image"></i> Save Image
                     </button>
-                    <button 
-                        onClick={() => window.print()} 
-                        className="btn btn-secondary-custom"
-                    >
-                        <i className="fas fa-print"></i>
-                        Print Ticket
+                    <button onClick={() => window.print()} className="btn-action btn-action-secondary">
+                        <i className="fas fa-print"></i> Print
                     </button>
-                </div>
-                
-                <div className="alert-custom no-print" style={{ marginTop: '2rem', marginBottom: '3rem' }}>
-                    <h5 style={{ margin: '0 0 15px 0' }}>
-                        <i className="fas fa-info-circle" style={{ marginRight: '0.5rem' }}></i>
-                        Important Information
-                    </h5>
-                    <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
-                        <li>Please bring a valid ID matching the ticket holder name</li>
-                        <li>This ticket is non-transferable and non-refundable</li>
-                        <li>Keep this ticket safe - it's your entry pass to the event</li>
-                        <li>For any issues, contact the event organizer</li>
-                        {ticket.status === 'active' && (
-                            <li>
-                                <strong>This ticket is ACTIVE and valid for entry</strong>
-                            </li>
-                        )}
-                        {ticket.status === 'used' && (
-                            <li>
-                                <strong>This ticket has been USED and is no longer valid</strong>
-                            </li>
-                        )}
-                        {ticket.status === 'cancelled' && (
-                            <li>
-                                <strong>This ticket has been CANCELLED and is not valid for entry</strong>
-                            </li>
-                        )}
-                    </ul>
-                </div>
+                </motion.div>
+
             </div>
         </Layout>
     );

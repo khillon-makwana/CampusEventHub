@@ -1,136 +1,258 @@
 /* src/components/Events/EventForm.css */
 
-/* --- Root Variables (from your theme) --- */
 :root {
-    --primary-color: #4F46E5;
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --text-dark: #2d3748;
-    --text-light: #718096;
-    --border-light: #e2e8f0;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
-    --shadow-large: 0 20px 50px rgba(0, 0, 0, 0.15);
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-medium: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --gradient-cosmic: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --shadow-glow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    --shadow-elevation: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 /* --- Form Card --- */
 .event-form-card {
-    background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-large);
-    border: 1px solid var(--border-light);
-    overflow: hidden; /* To contain the header */
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-elevation);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .event-form-header {
-    background: var(--gradient-primary);
+    background: var(--gradient-cosmic);
     color: white;
-    padding: 2rem 2.5rem;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.event-form-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
+    animation: shine-header 3s infinite;
+}
+
+@keyframes shine-header {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .event-form-header h4 {
     margin: 0;
-    font-weight: 600;
+    font-weight: 800;
+    font-size: 1.8rem;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
 }
 
 .event-form-body {
-    padding: 2.5rem;
+    padding: 3rem;
 }
 
 /* --- Form Elements --- */
 .form-label {
     font-weight: 600;
-    color: var(--text-dark);
+    color: #2d3748;
     margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
 }
 
 .form-control,
 .form-select {
-    border: 2px solid var(--border-light);
-    border-radius: var(--radius-md);
-    padding: 0.75rem 1rem;
-    transition: var(--transition-fast);
-    font-size: 0.95rem;
-    background-color: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    background-color: #f8fafc;
+    color: #4a5568;
 }
 
 .form-control:focus,
 .form-select:focus {
-    border-color: var(--primary-color);
+    border-color: #667eea;
     background-color: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
     outline: none;
+    transform: translateY(-2px);
 }
 
-.form-check-label {
-    font-weight: 500;
+.form-control::placeholder {
+    color: #a0aec0;
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Checkboxes */
+.category-checkbox-group {
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    background: #f8fafc;
+    max-height: 250px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.form-check {
+    padding-left: 2rem;
+    margin-bottom: 0;
 }
 
 .form-check-input {
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-top: 0.2em;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-left: -2rem;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: #667eea;
+    border-color: #667eea;
+    transform: scale(1.1);
 }
 
-.category-checkbox-group {
-    border: 2px solid var(--border-light);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    background: #f7fafc;
-    max-height: 200px;
-    overflow-y: auto;
-}
-.category-checkbox-group.is-invalid {
-    border-color: #dc3545;
+.form-check-label {
+    cursor: pointer;
+    font-weight: 500;
+    color: #4a5568;
+    transition: color 0.2s;
 }
 
-
-/* --- Form Buttons --- */
-.btn-form-primary {
-    background: var(--gradient-primary);
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 0.75rem 1.5rem;
+.form-check-input:checked+.form-check-label {
+    color: #667eea;
     font-weight: 600;
+}
+
+/* File Input */
+input[type="file"] {
+    padding: 0.8rem;
+    background: white;
+}
+
+input[type="file"]::file-selector-button {
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    background: #edf2f7;
+    color: #4a5568;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: #e2e8f0;
+    color: #2d3748;
+}
+
+/* Image Preview */
+.image-preview-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px dashed #cbd5e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7fafc;
+    margin-top: 1rem;
+}
+
+.image-preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- Buttons --- */
+.btn-form-primary {
+    background: var(--gradient-cosmic);
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
     color: white;
-    transition: var(--transition-medium);
-    box-shadow: var(--shadow-soft);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    letter-spacing: 0.5px;
 }
+
 .btn-form-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
 }
+
 .btn-form-primary:disabled {
     opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .btn-form-secondary {
     background: white;
-    color: var(--text-light);
-    border: 2px solid var(--border-light);
-    border-radius: var(--radius-md);
-    padding: 0.75rem 1.5rem;
+    color: #718096;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 1rem 2rem;
     font-weight: 600;
-    transition: var(--transition-medium);
-}
-.btn-form-secondary:hover {
-    transform: translateY(-2px);
-    border-color: var(--text-light);
-    color: var(--text-dark);
-    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
 }
 
+.btn-form-secondary:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    color: #2d3748;
+    transform: translateY(-2px);
+}
+
+/* Error Messages */
 .error-message {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
+    color: #e53e3e;
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.error-message::before {
+    content: '\f06a';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .event-form-body {
+        padding: 1.5rem;
+    }
+
+    .category-checkbox-group {
+        grid-template-columns: 1fr;
+    }
 }

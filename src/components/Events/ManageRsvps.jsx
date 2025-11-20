@@ -1,10 +1,11 @@
 // src/components/Events/ManageRsvps.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { apiGet, apiPost } from '../../api'; // Using apiPost for Edit
+import { motion, AnimatePresence } from 'framer-motion';
+import { apiGet, apiPost } from '../../api';
 import Layout from '../Layout';
-import './ManageRsvps.css'; // Import the new CSS
-import { Modal, Button, Form } from 'react-bootstrap'; // Import React-Bootstrap
+import { Modal, Button, Form } from 'react-bootstrap';
+import './ManageRsvps.css';
 
 // Helper to format date
 const formatDate = (dateString) => {
@@ -18,6 +19,18 @@ const formatDate = (dateString) => {
     });
 };
 
+// Animated Section Wrapper
+const AnimatedSection = ({ children, className = '', delay = 0.1 }) => (
+    <motion.div
+        className={className}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20, delay }}
+    >
+        {children}
+    </motion.div>
+);
+
 export default function ManageRsvps() {
     const { id: eventId } = useParams();
     const navigate = useNavigate();
@@ -26,7 +39,7 @@ export default function ManageRsvps() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     // Table state
     const [searchText, setSearchText] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'registered_at', direction: 'desc' });
@@ -50,7 +63,7 @@ export default function ManageRsvps() {
         } catch (err) {
             setError(err.message);
             if (err.message.includes('authorized')) {
-                navigate('/my-events'); // Redirect if not authorized
+                navigate('/my-events');
             }
         } finally {
             setLoading(false);
@@ -65,15 +78,14 @@ export default function ManageRsvps() {
     const handleRemoveAttendee = async (rsvpId) => {
         if (window.confirm('Are you sure you want to remove this attendee? This will also delete their feedback and free up their ticket (if applicable).')) {
             try {
-                // Use DELETE method on the new actions endpoint
                 const res = await fetch(`http://localhost/CampusEventHub/backend/api/rsvp_actions.php?rsvp_id=${rsvpId}`, {
                     method: 'DELETE',
                     credentials: 'include'
                 });
                 const result = await res.json();
-                
+
                 if (result.success) {
-                    fetchData(); // Refetch all data to update table and summary
+                    fetchData();
                 } else {
                     throw new Error(result.error || 'Failed to remove attendee');
                 }
@@ -100,14 +112,13 @@ export default function ManageRsvps() {
     const handleEditSave = async () => {
         setEditLoading(true);
         try {
-            // Use POST (as a PUT) on the new actions endpoint
             const result = await apiPost(`rsvp_actions.php?rsvp_id=${selectedRsvp.id}`, {
                 status: editStatus,
                 category_id: editCategory
             });
             if (result.success) {
                 closeEditModal();
-                fetchData(); // Refetch data
+                fetchData();
             } else {
                 throw new Error(result.error || 'Failed to update RSVP');
             }
@@ -120,7 +131,7 @@ export default function ManageRsvps() {
     // Memoized, filtered, and sorted attendees
     const processedAttendees = useMemo(() => {
         if (!data?.attendees) return [];
-        let filtered = data.attendees.filter(a => 
+        let filtered = data.attendees.filter(a =>
             a.fullname.toLowerCase().includes(searchText.toLowerCase()) ||
             a.email.toLowerCase().includes(searchText.toLowerCase())
         );
@@ -153,17 +164,21 @@ export default function ManageRsvps() {
     if (loading) {
         return (
             <Layout user={data?.user}>
-                <div className="container page-wrapper text-center py-5">
-                    <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div>
+                <div className="container page-wrapper text-center py-5" style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
+                    <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </Layout>
         );
     }
-    
+
     if (error) {
         return (
             <Layout user={data?.user}>
-                <div className="container page-wrapper"><div className="alert alert-danger">{error}</div></div>
+                <div className="container page-wrapper pt-5">
+                    <div className="alert alert-danger shadow-sm rounded-3">{error}</div>
+                </div>
             </Layout>
         );
     }
@@ -173,26 +188,37 @@ export default function ManageRsvps() {
 
     return (
         <Layout user={user}>
-            <div className="container page-wrapper">
-                <div className="page-header">
-                    <h2><i className="fas fa-users me-2"></i> Manage RSVPs</h2>
-                    <div className="event-title">{event.title}</div>
-                </div>
+            <div className="container page-wrapper pt-4">
+                <AnimatedSection className="page-header">
+                    <motion.h2
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <i className="fas fa-users me-2 text-primary"></i> Manage RSVPs
+                    </motion.h2>
+                    <motion.div
+                        className="event-title"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        {event.title}
+                    </motion.div>
+                </AnimatedSection>
 
                 {attendees.length === 0 ? (
-                    <div className="table-wrapper">
+                    <AnimatedSection delay={0.4} className="table-wrapper">
                         <div className="empty-state">
                             <div className="empty-state-icon"><i className="fas fa-user-slash"></i></div>
-                            <div className="alert alert-info d-inline-block">
-                                <strong>No RSVPs Yet</strong><br />
-                                No attendees have RSVP'd to this event.
-                            </div>
+                            <h4 className="text-white mb-3">No RSVPs Yet</h4>
+                            <p className="text-muted">No attendees have RSVP'd to this event yet.</p>
                         </div>
-                    </div>
+                    </AnimatedSection>
                 ) : (
                     <>
                         {/* Summary Section */}
-                        <div className="summary-container">
+                        <AnimatedSection delay={0.4} className="summary-container">
                             <div className="summary-card">
                                 <div className="row g-3">
                                     <div className="col-md-3 col-sm-6"><SummaryItem title="Total RSVPs" count={summary.total} icon="fa-users" type="total" /></div>
@@ -201,58 +227,63 @@ export default function ManageRsvps() {
                                     <div className="col-md-3 col-sm-6"><SummaryItem title="Not Going" count={summary.not_going} icon="fa-times" type="not-going" /></div>
                                 </div>
                             </div>
-                        </div>
+                        </AnimatedSection>
 
                         {/* RSVPs Table */}
-                        <div className="table-wrapper">
-                            <div className="d-flex justify-content-between mb-3">
-                                <h5>Attendee List</h5>
-                                <input 
-                                    type="text"
-                                    className="form-control rsvp-search-bar"
-                                    placeholder="Search attendees..."
-                                    style={{maxWidth: '300px'}}
-                                    value={searchText}
-                                    onChange={e => setSearchText(e.target.value)}
-                                />
+                        <AnimatedSection delay={0.5} className="table-wrapper">
+                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+                                <h5 className="mb-0 text-white"><i className="fas fa-list me-2 text-primary"></i>Attendee List</h5>
+                                <div className="position-relative" style={{ width: '100%', maxWidth: '300px' }}>
+                                    <i className="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input
+                                        type="text"
+                                        className="form-control rsvp-search-bar"
+                                        placeholder="Search attendees..."
+                                        value={searchText}
+                                        onChange={e => setSearchText(e.target.value)}
+                                    />
+                                </div>
                             </div>
 
                             <div className="table-responsive">
                                 <table id="rsvpTable" className="table table-hover align-middle">
                                     <thead>
                                         <tr>
-                                            <th onClick={() => requestSort('fullname')} style={{cursor: 'pointer'}}><i className="fas fa-user me-2"></i> Full Name{getSortIcon('fullname')}</th>
-                                            <th onClick={() => requestSort('email')} style={{cursor: 'pointer'}}><i className="fas fa-envelope me-2"></i> Email{getSortIcon('email')}</th>
-                                            <th onClick={() => requestSort('status')} style={{cursor: 'pointer'}}><i className="fas fa-info-circle me-2"></i> Status{getSortIcon('status')}</th>
-                                            <th onClick={() => requestSort('registered_at')} style={{cursor: 'pointer'}}><i className="fas fa-calendar-check me-2"></i> Registered{getSortIcon('registered_at')}</th>
-                                            <th><i className="fas fa-cog me-2"></i> Actions</th>
+                                            <th onClick={() => requestSort('fullname')} style={{ cursor: 'pointer' }}>Full Name{getSortIcon('fullname')}</th>
+                                            <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>Email{getSortIcon('email')}</th>
+                                            <th onClick={() => requestSort('status')} style={{ cursor: 'pointer' }}>Status{getSortIcon('status')}</th>
+                                            <th onClick={() => requestSort('registered_at')} style={{ cursor: 'pointer' }}>Registered{getSortIcon('registered_at')}</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {processedAttendees.map(attendee => (
-                                            <AttendeeRow 
-                                                key={attendee.id} 
-                                                attendee={attendee} 
-                                                onEdit={() => openEditModal(attendee)}
-                                                onRemove={() => handleRemoveAttendee(attendee.id)} 
-                                            />
-                                        ))}
+                                        <AnimatePresence>
+                                            {processedAttendees.map((attendee, index) => (
+                                                <AttendeeRow
+                                                    key={attendee.id}
+                                                    attendee={attendee}
+                                                    index={index}
+                                                    onEdit={() => openEditModal(attendee)}
+                                                    onRemove={() => handleRemoveAttendee(attendee.id)}
+                                                />
+                                            ))}
+                                        </AnimatePresence>
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
+                        </AnimatedSection>
                     </>
                 )}
 
-                <div className="back-button-wrapper">
-                    <Link to="/my-events" className="btn btn-secondary btn-lg">
+                <AnimatedSection delay={0.6} className="d-flex justify-content-center mt-4">
+                    <Link to="/my-events" className="btn btn-outline-light rounded-pill px-4">
                         <i className="fas fa-arrow-left me-2"></i> Back to My Events
                     </Link>
-                </div>
+                </AnimatedSection>
             </div>
 
             {/* Edit RSVP Modal */}
-            <EditRsvpModal 
+            <EditRsvpModal
                 show={showEditModal}
                 handleClose={closeEditModal}
                 handleSave={handleEditSave}
@@ -271,32 +302,50 @@ export default function ManageRsvps() {
 // --- Sub-Components ---
 
 const SummaryItem = ({ title, count, icon, type }) => (
-    <div className={`summary-item ${type}`}>
+    <motion.div
+        className={`summary-item ${type}`}
+        whileHover={{ y: -5, scale: 1.02 }}
+        transition={{ type: 'spring', stiffness: 300 }}
+    >
         <span className={`icon fas ${icon}`}></span>
         <h5>{title}</h5>
         <p className="count">{count}</p>
-    </div>
+    </motion.div>
 );
 
-const AttendeeRow = ({ attendee, onEdit, onRemove }) => {
+const AttendeeRow = ({ attendee, index, onEdit, onRemove }) => {
     const statusLower = attendee.status.toLowerCase().replace(' ', '_');
     const statusClass = `status-${statusLower}`;
 
     return (
-        <tr>
-            <td><strong>{attendee.fullname}</strong></td>
-            <td>{attendee.email}</td>
-            <td><span className={`status-badge ${statusClass}`}>{attendee.status}</span></td>
-            <td>{formatDate(attendee.registered_at)}</td>
+        <motion.tr
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ delay: index * 0.05 }}
+        >
             <td>
-                <button className="btn btn-sm btn-warning me-2" onClick={onEdit}>
-                    <i className="fas fa-edit me-1"></i> Edit
-                </button>
-                <button className="btn btn-sm btn-danger" onClick={onRemove}>
-                    <i className="fas fa-trash me-1"></i> Remove
-                </button>
+                <div className="d-flex align-items-center">
+                    <div className="avatar-circle bg-primary bg-opacity-25 text-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', fontSize: '0.9rem' }}>
+                        {attendee.fullname.charAt(0).toUpperCase()}
+                    </div>
+                    <strong>{attendee.fullname}</strong>
+                </div>
             </td>
-        </tr>
+            <td className="text-muted">{attendee.email}</td>
+            <td><span className={`status-badge ${statusClass}`}>{attendee.status}</span></td>
+            <td className="text-muted small">{formatDate(attendee.registered_at)}</td>
+            <td>
+                <div className="btn-group">
+                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="btn btn-sm btn-outline-warning border-0" onClick={onEdit} title="Edit">
+                        <i className="fas fa-edit"></i>
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="btn btn-sm btn-outline-danger border-0" onClick={onRemove} title="Remove">
+                        <i className="fas fa-trash"></i>
+                    </motion.button>
+                </div>
+            </td>
+        </motion.tr>
     );
 };
 
@@ -304,39 +353,46 @@ const EditRsvpModal = ({ show, handleClose, handleSave, rsvp, categories, status
     if (!rsvp) return null;
 
     return (
-        <Modal show={show} onHide={handleClose} centered>
-            <Modal.Header className="card-header-custom" closeButton closeVariant="white">
-                <Modal.Title as="h3"><i className="fas fa-edit me-2"></i> Edit RSVP</Modal.Title>
+        <Modal show={show} onHide={handleClose} centered contentClassName="bg-dark border border-secondary text-white">
+            <Modal.Header className="card-header-custom border-secondary" closeButton closeVariant="white">
+                <Modal.Title as="h5"><i className="fas fa-edit me-2 text-primary"></i> Edit RSVP</Modal.Title>
             </Modal.Header>
             <Modal.Body className="card-body-custom">
                 <div className="attendee-info">
-                    <h5><i className="fas fa-user me-2"></i> Attendee Information</h5>
-                    <div className="info-row"><span className="icon"><i className="fas fa-user-circle"></i></span><strong>Name:</strong>&nbsp;{rsvp.fullname}</div>
-                    <div className="info-row"><span className="icon"><i className="fas fa-envelope"></i></span><strong>Email:</strong>&nbsp;{rsvp.email}</div>
+                    <h6 className="text-muted mb-3 text-uppercase small fw-bold">Attendee Information</h6>
+                    <div className="d-flex align-items-center mb-2">
+                        <div className="avatar-circle bg-primary bg-opacity-25 text-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                            {rsvp.fullname.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div className="fw-bold">{rsvp.fullname}</div>
+                            <div className="text-muted small">{rsvp.email}</div>
+                        </div>
+                    </div>
                 </div>
 
                 <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                     <Form.Group className="mb-3">
-                        <Form.Label className="form-label"><i className="fas fa-info-circle me-2"></i> RSVP Status</Form.Label>
-                        <Form.Select className="form-select" value={status} onChange={e => setStatus(e.target.value)}>
+                        <Form.Label className="form-label text-muted small">RSVP Status</Form.Label>
+                        <Form.Select className="form-select bg-dark text-white border-secondary" value={status} onChange={e => setStatus(e.target.value)}>
                             <option value="going">Going</option>
                             <option value="interested">Interested</option>
                             <option value="not going">Not Going</option>
                         </Form.Select>
                     </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label className="form-label"><i className="fas fa-tags me-2"></i> Attendee Category</Form.Label>
-                        <Form.Select className="form-select" value={category} onChange={e => setCategory(e.target.value)}>
+                    <Form.Group className="mb-4">
+                        <Form.Label className="form-label text-muted small">Attendee Category</Form.Label>
+                        <Form.Select className="form-select bg-dark text-white border-secondary" value={category} onChange={e => setCategory(e.target.value)}>
                             {categories.map(cat => (
                                 <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                         </Form.Select>
                     </Form.Group>
 
-                    <div className="d-flex justify-content-end gap-2 mt-4">
-                        <Button variant="secondary" onClick={handleClose} disabled={loading}>Cancel</Button>
-                        <Button variant="primary" type="submit" disabled={loading} style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none'}}>
+                    <div className="d-flex justify-content-end gap-2">
+                        <Button variant="outline-light" onClick={handleClose} disabled={loading}>Cancel</Button>
+                        <Button variant="primary" type="submit" disabled={loading} className="px-4">
                             {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-save me-2"></i>}
                             {loading ? 'Saving...' : 'Save Changes'}
                         </Button>

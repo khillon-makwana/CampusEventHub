@@ -1,17 +1,92 @@
 /* src/components/Layout.css */
 
+/* Global Layout Wrapper */
 .layout-wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: #f7fafc; /* Use a light, neutral background */
+    background: var(--bg-dark);
+    position: relative;
+    overflow-x: hidden;
+    isolation: isolate;
+    /* Create a stacking context */
 }
 
+/* Premium Background Effect */
+.layout-wrapper::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background:
+        radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* Subtle Noise Texture for depth */
+.layout-wrapper::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Main Content Area */
 .main-content {
-    flex: 1 0 auto;
-    /* This padding is a good default, 
-       but individual pages can override it. */
-    padding-top: 2rem;
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-top: 80px;
+    /* Space for fixed navbar */
     padding-bottom: 2rem;
-    position: relative; /* Needed for AnimatePresence */
+    position: relative;
+    z-index: 1;
+}
+
+/* Loading State */
+.layout-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+.spinner-premium {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 70px;
+        padding-bottom: 80px;
+        /* Extra space for mobile nav */
+    }
 }
