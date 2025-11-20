@@ -5,14 +5,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -25,28 +25,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // findById() in your model already selects safe fields
         $user = $userModel->findById($user_id); 
         if (!$user) {
-            http_response_code(404);
-            echo json_encode(['error' => 'User not found.']);
-            exit;
+            Response::error('User not found.', 404);
         }
-        echo json_encode(['success' => true, 'user' => $user]);
+        Response::json(['success' => true, 'user' => $user]);
 
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // 3. HANDLE 'POST' REQUEST (Update Fullname)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
-    $fullname = trim($data['fullname'] ?? '');
+    $inputs = Validator::sanitize($data ?? []);
+    $fullname = $inputs['fullname'] ?? '';
 
     if (empty($fullname)) {
-        http_response_code(422);
-        echo json_encode(['error' => 'Full name cannot be empty.']);
-        exit;
+        Response::error('Full name cannot be empty.', 422);
     }
 
     try {
@@ -56,19 +51,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Fetch the updated user data to send back
         $user = $userModel->findById($user_id);
         
-        echo json_encode([
+        Response::json([
             'success' => true, 
             'message' => 'Profile updated successfully!',
             'user' => $user // Send back new user data
         ]);
 
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // Fallback for invalid request method
-http_response_code(405); // Method Not Allowed
-echo json_encode(['error' => 'Invalid request method.']);
+Response::error('Invalid request method.', 405);

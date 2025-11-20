@@ -5,22 +5,20 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized.']);
-    exit;
+    Response::error('Unauthorized.', 401);
 }
 
 $payment_id = (int)($_GET['payment_id'] ?? 0);
 $user_id = (int)$_SESSION['user_id'];
 
 if ($payment_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid payment ID.']);
-    exit;
+    Response::error('Invalid payment ID.', 400);
 }
 
 try {
@@ -40,14 +38,11 @@ try {
     $payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$payment) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Payment not found.']);
-        exit;
+        Response::error('Payment not found.', 404);
     }
 
-    echo json_encode(['success' => true, 'user' => $user, 'payment' => $payment]);
+    Response::json(['success' => true, 'user' => $user, 'payment' => $payment]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+    Response::error('Database error', 500, $e->getMessage());
 }

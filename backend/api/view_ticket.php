@@ -5,23 +5,21 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
 $ticket_id = (int)($_GET['ticket_id'] ?? 0);
 
 if ($ticket_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid Ticket ID.']);
-    exit;
+    Response::error('Invalid Ticket ID.', 400);
 }
 
 try {
@@ -48,19 +46,16 @@ try {
     $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$ticket) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Ticket not found or you do not have permission to view it.']);
-        exit;
+        Response::error('Ticket not found or you do not have permission to view it.', 404);
     }
 
     // 4. SEND RESPONSE
-    echo json_encode([
+    Response::json([
         'success' => true,
         'user' => $user, // For layout
         'ticket' => $ticket
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+    Response::error('Database error', 500, $e->getMessage());
 }

@@ -6,28 +6,28 @@ require_once __DIR__ . '/cors.php';
 
 require_once __DIR__ . '/../vendor/autoload.php';
 use App\Config\Database;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 // --- START SESSION ---
 session_start();
 
 // --- AUTHENTICATION CHECK ---
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in to perform this action.']);
-    exit;
+    Response::error('Unauthorized. Please log in to perform this action.', 401);
 }
 
 // --- INPUT VALIDATION ---
 $data = json_decode(file_get_contents('php://input'), true);
-$event_id = (int)($data['event_id'] ?? $data['id'] ?? 0);
-$action = (string)($data['action'] ?? '');
+$inputs = Validator::sanitize($data ?? []);
+
+$event_id = (int)($inputs['event_id'] ?? $inputs['id'] ?? 0);
+$action = (string)($inputs['action'] ?? '');
 $user_id = (int)$_SESSION['user_id'];
-$ticket_id = (int)($data['ticket_id'] ?? 0);
+$ticket_id = (int)($inputs['ticket_id'] ?? 0);
 
 if (empty($action) || ($event_id <= 0 && $ticket_id <= 0)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid ID or action.']);
-    exit;
+    Response::error('Invalid ID or action.', 400);
 }
 
 try {
@@ -45,26 +45,20 @@ try {
             $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$event) {
-                http_response_code(404);
-                echo json_encode(['error' => 'Event not found or not available.']);
-                exit;
+                Response::error('Event not found or not available.', 404);
             }
 
             if ($new_status === 'going' && $event['ticket_price'] > 0) {
-                http_response_code(402); // Payment Required
-                echo json_encode([
+                Response::json([
                     'success' => false,
                     'error' => 'This is a paid event. Please purchase a ticket.',
                     'payment_required' => true,
                     'event_id' => $event_id
-                ]);
-                exit;
+                ], 402);
             }
 
             if ($new_status === 'going' && $event['total_tickets'] > 0 && $event['available_tickets'] <= 0) {
-                http_response_code(409); // Conflict
-                echo json_encode(['error' => 'Sorry, this event is fully booked.']);
-                exit;
+                Response::error('Sorry, this event is fully booked.', 409);
             }
 
             $stmt_rsvp = $pdo->prepare("SELECT status, quantity FROM event_attendees WHERE event_id = ? AND user_id = ?");
@@ -114,7 +108,7 @@ try {
                 error_log("Failed to send RSVP notification: " . $e->getMessage());
             }
             // --- END NEW BLOCK ---
-            echo json_encode(['success' => true, 'message' => 'Your RSVP has been updated!', 'new_status' => $new_status]);
+            Response::json(['success' => true, 'message' => 'Your RSVP has been updated!', 'new_status' => $new_status]);
             break;
 
         case 'unattend':
@@ -144,20 +138,18 @@ try {
                 $stmt_feedback->execute([$event_id, $user_id]);
 
                 $pdo->commit();
-                echo json_encode(['success' => true, 'message' => 'You are no longer attending this event.', 'new_status' => null]);
+                Response::json(['success' => true, 'message' => 'You are no longer attending this event.', 'new_status' => null]);
             } else {
-                echo json_encode(['success' => true, 'message' => 'You were not attending this event.']);
+                Response::json(['success' => true, 'message' => 'You were not attending this event.']);
             }
             break;
 
         case 'submit_feedback':
-            $rating = (int)($data['rating'] ?? 0);
-            $comment = trim($data['comment'] ?? '');
+            $rating = (int)($inputs['rating'] ?? 0);
+            $comment = $inputs['comment'] ?? '';
 
             if ($rating < 1 || $rating > 5) {
-                http_response_code(422);
-                echo json_encode(['error' => 'Please provide a valid rating (1â€“5 stars).']);
-                exit;
+                Response::error('Please provide a valid rating (1â€“5 stars).', 422);
             }
 
             $stmt_check = $pdo->prepare("
@@ -181,10 +173,9 @@ try {
                 $stmt_refetch->execute([$event_id, $user_id]);
                 $user_feedback = $stmt_refetch->fetch(PDO::FETCH_ASSOC);
 
-                echo json_encode(['success' => true, 'message' => 'Thank you for your feedback!', 'user_feedback' => $user_feedback]);
+                Response::json(['success' => true, 'message' => 'Thank you for your feedback!', 'user_feedback' => $user_feedback]);
             } else {
-                http_response_code(403);
-                echo json_encode(['error' => 'You can only leave feedback for events you attended that are ongoing or completed.']);
+                Response::error('You can only leave feedback for events you attended that are ongoing or completed.', 403);
             }
             break;
 
@@ -193,10 +184,9 @@ try {
             $stmt_del->execute([$event_id, $user_id]);
 
             if ($stmt_del->rowCount() > 0) {
-                echo json_encode(['success' => true, 'message' => 'Feedback deleted.', 'user_feedback' => null]);
+                Response::json(['success' => true, 'message' => 'Feedback deleted.', 'user_feedback' => null]);
             } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'Feedback not found.']);
+                Response::error('Feedback not found.', 404);
             }
             break;
 
@@ -221,10 +211,9 @@ try {
             $stmt->execute($params);
 
             if ($stmt->rowCount() > 0) {
-                echo json_encode(['success' => true, 'message' => "Event status updated to {$new_status}.", 'new_status' => $new_status]);
+                Response::json(['success' => true, 'message' => "Event status updated to {$new_status}.", 'new_status' => $new_status]);
             } else {
-                http_response_code(403);
-                echo json_encode(['error' => 'Event not found, or action not permitted for its current status.']);
+                Response::error('Event not found, or action not permitted for its current status.', 403);
             }
             break;
 
@@ -233,9 +222,7 @@ try {
         case 'mark_ticket_active':
         case 'cancel_ticket':
             if ($ticket_id <= 0) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid Ticket ID.']);
-                exit;
+                Response::error('Invalid Ticket ID.', 400);
             }
 
             $stmt_owner = $pdo->prepare("
@@ -246,9 +233,7 @@ try {
             $stmt_owner->execute([$ticket_id, $user_id]);
 
             if (!$stmt_owner->fetch()) {
-                http_response_code(403);
-                echo json_encode(['error' => 'Access denied. You do not own this event.']);
-                exit;
+                Response::error('Access denied. You do not own this event.', 403);
             }
 
             $new_ticket_status = match ($action) {
@@ -261,21 +246,16 @@ try {
             $stmt_update = $pdo->prepare("UPDATE tickets SET status = ? WHERE id = ?");
             $stmt_update->execute([$new_ticket_status, $ticket_id]);
 
-            echo json_encode(['success' => true, 'message' => "Ticket marked as {$new_ticket_status}."]);
+            Response::json(['success' => true, 'message' => "Ticket marked as {$new_ticket_status}."]);
             break;
 
         default:
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid action specified.']);
+            Response::error('Invalid action specified.', 400);
             break;
     }
 
 } catch (Exception $e) {
     if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
     $code = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
-    http_response_code($code);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    Response::error($e->getMessage(), $code);
 }

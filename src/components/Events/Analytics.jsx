@@ -25,11 +25,11 @@ const commonOptions = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            labels: { color: '#9ca3af', font: { family: "'Inter', sans-serif" } }
+            labels: { color: '#101216ff', font: { family: "'Inter', sans-serif" } }
         },
         tooltip: {
             backgroundColor: 'rgba(17, 24, 39, 0.9)',
-            titleColor: '#fff',
+            titleColor: '#1c1b1bff',
             bodyColor: '#e5e7eb',
             padding: 12,
             cornerRadius: 8,

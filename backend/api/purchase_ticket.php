@@ -5,13 +5,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -21,9 +21,7 @@ $pdo = Database::getConnection();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $event_id = (int)($_GET['event_id'] ?? 0);
     if ($event_id <= 0) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid Event ID.']);
-        exit;
+        Response::error('Invalid Event ID.', 400);
     }
 
     try {
@@ -40,30 +38,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$event) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Event not found or not available.']);
-            exit;
+            Response::error('Event not found or not available.', 404);
         }
 
-        echo json_encode(['success' => true, 'user' => $user, 'event' => $event]);
+        Response::json(['success' => true, 'user' => $user, 'event' => $event]);
         
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // --- Handle POST Request: Create pending payment ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
-    $event_id = (int)($data['event_id'] ?? 0);
-    $quantity = (int)($data['quantity'] ?? 1);
+    $inputs = Validator::sanitize($data ?? []);
+
+    $event_id = (int)($inputs['event_id'] ?? 0);
+    $quantity = (int)($inputs['quantity'] ?? 1);
 
     if ($event_id <= 0 || $quantity <= 0) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid event ID or quantity.']);
-        exit;
+        Response::error('Invalid event ID or quantity.', 400);
     }
 
     try {
@@ -73,15 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $event = $stmt_event->fetch(PDO::FETCH_ASSOC);
 
         if (!$event) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Event not found.']);
-            exit;
+            Response::error('Event not found.', 404);
         }
 
         if ($event['available_tickets'] < $quantity) {
-            http_response_code(409); // Conflict
-            echo json_encode(['error' => "Only {$event['available_tickets']} tickets available."]);
-            exit;
+            Response::error("Only {$event['available_tickets']} tickets available.", 409);
         }
 
         $total_amount = $event['ticket_price'] * $quantity;
@@ -94,15 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_insert->execute([$user_id, $event_id, $total_amount, $quantity, $transaction_id]);
         $payment_id = $pdo->lastInsertId();
 
-        echo json_encode(['success' => true, 'payment_id' => $payment_id]);
+        Response::json(['success' => true, 'payment_id' => $payment_id]);
         
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // Fallback for invalid request method
-http_response_code(405); // Method Not Allowed
-echo json_encode(['error' => 'Invalid request method.']);
+Response::error('Invalid request method.', 405);

@@ -5,23 +5,22 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../mpesa_integration/MpesaService.php';
 
 use App\Config\Database;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 // header('Content-Type: application/json'); // This is already set in cors.php
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    Response::error('Unauthorized', 401);
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$payment_id = (int)($data['payment_id'] ?? 0);
+$inputs = Validator::sanitize($data ?? []);
+$payment_id = (int)($inputs['payment_id'] ?? 0);
 
 if ($payment_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid payment_id']);
-    exit;
+    Response::error('Invalid payment_id', 400);
 }
 
 try {
@@ -32,22 +31,17 @@ try {
     $payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$payment) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Payment not found']);
-        exit;
+        Response::error('Payment not found', 404);
     }
 
     if ($payment['status'] === 'completed') {
         $stmt_ticket = $pdo->prepare("SELECT t.id FROM tickets t JOIN payment_tickets pt ON t.id = pt.ticket_id WHERE pt.payment_id = ? LIMIT 1");
         $stmt_ticket->execute([$payment_id]);
         $ticket_id = (int)$stmt_ticket->fetchColumn();
-        echo json_encode(['status' => 'completed', 'ticket_id' => $ticket_id]);
-        exit;
+        Response::json(['status' => 'completed', 'ticket_id' => $ticket_id]);
     }
     if (empty($payment['transaction_id']) || str_starts_with($payment['transaction_id'], 'PENDING_')) {
-        http_response_code(400);
-        echo json_encode(['error' => 'STK push not yet initiated or transaction ID is missing.']);
-        exit;
+        Response::error('STK push not yet initiated or transaction ID is missing.', 400);
     }
 
     $mpesa = new MpesaService();
@@ -117,17 +111,15 @@ try {
             $first_ticket_id = (int)$stmt_ticket->fetchColumn();
         }
         
-        echo json_encode(['status' => 'completed', 'ticket_id' => $first_ticket_id]);
+        Response::json(['status' => 'completed', 'ticket_id' => $first_ticket_id]);
 
     } else {
         // Still pending or failed
-        echo json_encode(['status' => 'pending', 'message' => $resultDesc]);
+        Response::json(['status' => 'pending', 'message' => $resultDesc]);
     }
 
 } catch (Throwable $e) {
     if(isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
-    http_response_code(500);
-    // Send the actual error message so we can see it in the console
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+    Response::error('Server error: ' . $e->getMessage(), 500);
 }
 ?>

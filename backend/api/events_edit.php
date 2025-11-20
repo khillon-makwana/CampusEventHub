@@ -5,14 +5,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $pdo = Database::getConnection();
@@ -21,9 +21,7 @@ $user_id = (int)$_SESSION['user_id'];
 // 2. GET EVENT ID
 $event_id = (int)($_GET['id'] ?? 0);
 if ($event_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid event ID.']);
-    exit;
+    Response::error('Invalid event ID.', 400);
 }
 
 // 3. FETCH ORIGINAL EVENT (Security Check)
@@ -33,14 +31,10 @@ try {
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$event) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Event not found or you do not have permission to edit it.']);
-        exit;
+        Response::error('Event not found or you do not have permission to edit it.', 404);
     }
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
-    exit;
+    Response::error('Database error', 500, $e->getMessage());
 }
 
 
@@ -60,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $userModel = new User();
         $user = $userModel->findById($user_id);
 
-        echo json_encode([
+        Response::json([
             'success' => true,
             'user' => $user,
             'event' => $event,
@@ -69,24 +63,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ]);
         
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // 5. HANDLE 'POST' REQUEST (Update Event)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // This is multipart/form-data
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $location = trim($_POST['location'] ?? '');
-    $event_date = $_POST['event_date'] ?? '';
+    // Sanitize inputs
+    $inputs = Validator::sanitize($_POST);
+
+    $title = $inputs['title'] ?? '';
+    $description = $inputs['description'] ?? '';
+    $location = $inputs['location'] ?? '';
+    $event_date = $inputs['event_date'] ?? '';
     $category_ids = $_POST['category_ids'] ?? [];
-    $total_tickets = (int)($_POST['total_tickets'] ?? 0);
-    $status = $_POST['status'] ?? 'draft';
-    $remove_image = isset($_POST['remove_image']) && $_POST['remove_image'] == 'true';
-    $ticket_price = (float)($_POST['ticket_price'] ?? 0);
+    $total_tickets = (int)($inputs['total_tickets'] ?? 0);
+    $status = $inputs['status'] ?? 'draft';
+    $remove_image = isset($inputs['remove_image']) && $inputs['remove_image'] == 'true';
+    $ticket_price = (float)($inputs['ticket_price'] ?? 0);
 
     $form_errors = [];
 
@@ -152,9 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 8. RETURN VALIDATION ERRORS
     if (!empty($form_errors)) {
-        http_response_code(422); // Unprocessable Entity
-        echo json_encode(['success' => false, 'errors' => $form_errors]);
-        exit;
+        Response::json(['success' => false, 'errors' => $form_errors], 422);
     }
 
     // 9. DATABASE UPDATE
@@ -192,12 +184,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo->commit();
 
-        echo json_encode(['success' => true, 'message' => 'Event updated successfully!']);
+        Response::json(['success' => true, 'message' => 'Event updated successfully!']);
         
     } catch (PDOException $e) {
         $pdo->rollBack();
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }

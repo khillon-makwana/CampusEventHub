@@ -5,23 +5,21 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
 $event_id = (int)($_GET['event_id'] ?? 0);
 
 if ($event_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid Event ID.']);
-    exit;
+    Response::error('Invalid Event ID.', 400);
 }
 
 try {
@@ -37,9 +35,7 @@ try {
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$event) {
-        http_response_code(403);
-        echo json_encode(['error' => "You're not authorized to manage this event."]);
-        exit;
+        Response::error("You're not authorized to manage this event.", 403);
     }
 
     // 4. FETCH ATTENDEES (using correct table name: attendee_category)
@@ -80,7 +76,7 @@ try {
     }
 
     // 7. SEND RESPONSE
-    echo json_encode([
+    Response::json([
         'success' => true,
         'user' => $user,
         'event' => $event,
@@ -90,6 +86,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+    Response::error('Database error', 500, $e->getMessage());
 }

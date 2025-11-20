@@ -5,14 +5,14 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
 use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -21,6 +21,7 @@ $pdo = Database::getConnection();
 // 2. HANDLE 'POST' REQUEST (Delete Tickets)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
+    $inputs = Validator::sanitize($data ?? []);
 
     try {
         if (isset($data['delete_all']) && $data['delete_all'] === true) {
@@ -28,28 +29,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("DELETE FROM tickets WHERE user_id = ?");
             $stmt->execute([$user_id]);
             $count = $stmt->rowCount();
-            echo json_encode(['success' => true, 'message' => "Successfully deleted {$count} ticket(s)."]);
+            Response::json(['success' => true, 'message' => "Successfully deleted {$count} ticket(s)."]);
 
         } elseif (isset($data['ticket_ids']) && is_array($data['ticket_ids']) && !empty($data['ticket_ids'])) {
             // Delete selected tickets
-            $placeholders = implode(',', array_fill(0, count($data['ticket_ids']), '?'));
+            // Note: We don't sanitize ticket_ids array structure itself, but we ensure they are integers in the query
+            $ticket_ids = $data['ticket_ids'];
+            $placeholders = implode(',', array_fill(0, count($ticket_ids), '?'));
             $stmt = $pdo->prepare("DELETE FROM tickets WHERE id IN ($placeholders) AND user_id = ?");
             
-            $params = $data['ticket_ids'];
+            $params = $ticket_ids;
             $params[] = $user_id;
             
             $stmt->execute($params);
             $count = $stmt->rowCount();
-            echo json_encode(['success' => true, 'message' => "Successfully deleted {$count} ticket(s)."]);
+            Response::json(['success' => true, 'message' => "Successfully deleted {$count} ticket(s)."]);
         } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'No tickets selected for deletion.']);
+            Response::error('No tickets selected for deletion.', 400);
         }
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt_tickets->execute([$user_id]);
         $tickets = $stmt_tickets->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode([
+        Response::json([
             'success' => true,
             'user' => $user,
             'tickets' => $tickets,
@@ -95,12 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ]);
 
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // Fallback for invalid request method
-http_response_code(405); // Method Not Allowed
-echo json_encode(['error' => 'Invalid request method.']);
+Response::error('Invalid request method.', 405);

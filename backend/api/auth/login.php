@@ -1,27 +1,28 @@
 <?php
 // backend/api/auth/login.php
 require_once '../cors.php';
-
-
 require_once __DIR__ . '/../../vendor/autoload.php';
-use App\Models\User;
 
+use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
+
+// Get and sanitize input
 $data = json_decode(file_get_contents('php://input'), true);
-$email = trim($data['email'] ?? '');
-$password = $data['password'] ?? '';
+$inputs = Validator::sanitize($data ?? []);
+
+$email = $inputs['email'] ?? '';
+$password = $data['password'] ?? ''; // Don't sanitize password
 
 if (!$email || !$password) {
-    http_response_code(422);
-    echo json_encode(['error' => 'email and password required']);
-    exit;
+    Response::error('email and password required', 422);
 }
 
 $userModel = new User();
 $user = $userModel->findByEmail($email);
+
 if (!$user || !password_verify($password, $user['password'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Invalid credentials']);
-    exit;
+    Response::error('Invalid credentials', 401);
 }
 
 session_start();
@@ -35,5 +36,5 @@ $safe = [
     'is_verified' => (int)$user['is_verified']
 ];
 
-echo json_encode(['success' => true, 'user' => $safe]);
+Response::json(['success' => true, 'user' => $safe]);
 

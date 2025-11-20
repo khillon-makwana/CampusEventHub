@@ -4,15 +4,15 @@ require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
-use App\Models\User; // <-- 1. IMPORT USER MODEL
+use App\Models\User;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 // 1. CHECK AUTHENTICATION
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized. Please log in.']);
-    exit;
+    Response::error('Unauthorized. Please log in.', 401);
 }
 
 $pdo = Database::getConnection();
@@ -21,7 +21,7 @@ $user_id = (int)$_SESSION['user_id'];
 // 2. HANDLE 'GET' REQUEST (Fetch Categories AND User)
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // --- 2a. GET USER (This was missing) ---
+        // --- 2a. GET USER ---
         $userModel = new User();
         $user = $userModel->findById($user_id);
         
@@ -30,30 +30,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // --- 2c. SEND BOTH ---
-        echo json_encode([
+        Response::json([
             'success' => true, 
             'categories' => $categories,
-            'user' => $user // <-- ADDED USER
+            'user' => $user
         ]);
 
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // 3. HANDLE 'POST' REQUEST (Create Event)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // This is multipart/form-data, so we use $_POST and $_FILES
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $location = trim($_POST['location'] ?? '');
-    $event_date = $_POST['event_date'] ?? '';
-    $category_ids = $_POST['category_ids'] ?? []; // This will be an array
-    $total_tickets = (int)($_POST['total_tickets'] ?? 0);
-    $status = $_POST['status'] ?? 'draft';
-    $ticket_price = floatval($_POST['ticket_price'] ?? 0);
+    // Sanitize inputs (except arrays like category_ids)
+    $inputs = Validator::sanitize($_POST);
+
+    $title = $inputs['title'] ?? '';
+    $description = $inputs['description'] ?? '';
+    $location = $inputs['location'] ?? '';
+    $event_date = $inputs['event_date'] ?? '';
+    $category_ids = $_POST['category_ids'] ?? []; // Don't sanitize array structure
+    $total_tickets = (int)($inputs['total_tickets'] ?? 0);
+    $status = $inputs['status'] ?? 'draft';
+    $ticket_price = floatval($inputs['ticket_price'] ?? 0);
 
     $form_errors = [];
 
@@ -103,9 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 6. RETURN VALIDATION ERRORS
     if (!empty($form_errors)) {
-        http_response_code(422); // Unprocessable Entity
-        echo json_encode(['success' => false, 'errors' => $form_errors]);
-        exit;
+        Response::json(['success' => false, 'errors' => $form_errors], 422);
     }
 
     // 7. DATABASE INSERTION
@@ -152,16 +150,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         // --- END NEW BLOCK ---
         
-        echo json_encode(['success' => true, 'message' => 'Event created successfully!', 'event_id' => $event_id]);
+        Response::json(['success' => true, 'message' => 'Event created successfully!', 'event_id' => $event_id]);
         
     } catch (PDOException $e) {
         $pdo->rollBack();
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'Database error', 'message' => $e->getMessage()]);
+        Response::error('Database error', 500, $e->getMessage());
     }
-    exit;
 }
 
 // Fallback for invalid request method
-http_response_code(405); // Method Not Allowed
-echo json_encode(['error' => 'Invalid request method.']);
+Response::error('Invalid request method.', 405);

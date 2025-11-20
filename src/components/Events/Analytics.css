@@ -136,7 +136,7 @@
     right: 1rem;
     font-size: 2.5rem;
     opacity: 0.1;
-    color: var(--text-primary);
+    color: black;
     transform: rotate(-10deg);
     transition: all 0.3s ease;
 }
@@ -150,7 +150,7 @@
 .analytics-metric-card h3 {
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: black;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
@@ -159,12 +159,12 @@
 .analytics-metric-card p {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--text-primary);
+    color: black;
     margin: 0;
     line-height: 1.2;
     background: var(--primary-gradient);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-text-fill-color: opaque;
 }
 
 /* Charts Grid */

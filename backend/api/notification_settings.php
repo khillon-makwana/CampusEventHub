@@ -7,13 +7,13 @@ use App\Config\Database;
 use App\Models\User;
 use App\Services\Mailer;
 use App\Services\NotificationManager;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    Response::error('Unauthorized', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $notificationManager = new NotificationManager(new Mailer());
         $unread_count = $notificationManager->getUnreadCount($user_id);
         
-        echo json_encode([
+        Response::json([
             'success' => true, 
             'user' => $user, 
             'preferences' => $preferences, 
@@ -50,21 +50,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ]);
 
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Error loading preferences: ' . $e->getMessage()]);
+        Response::error('Error loading preferences: ' . $e->getMessage(), 500);
     }
-    exit;
 }
 
 // Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
+    $inputs = Validator::sanitize($data ?? []);
     
     $new_preferences = [
-        'email_new_events' => isset($data['email_new_events']) ? (int)$data['email_new_events'] : 0,
-        'email_event_reminders' => isset($data['email_event_reminders']) ? (int)$data['email_event_reminders'] : 0,
-        'email_rsvp_confirmation' => isset($data['email_rsvp_confirmation']) ? (int)$data['email_rsvp_confirmation'] : 0,
-        'email_event_updates' => isset($data['email_event_updates']) ? (int)$data['email_event_updates'] : 0
+        'email_new_events' => isset($inputs['email_new_events']) ? (int)$inputs['email_new_events'] : 0,
+        'email_event_reminders' => isset($inputs['email_event_reminders']) ? (int)$inputs['email_event_reminders'] : 0,
+        'email_rsvp_confirmation' => isset($inputs['email_rsvp_confirmation']) ? (int)$inputs['email_rsvp_confirmation'] : 0,
+        'email_event_updates' => isset($inputs['email_event_updates']) ? (int)$inputs['email_event_updates'] : 0
     ];
 
     try {
@@ -88,11 +87,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_preferences['email_event_updates']
         ]);
         
-        echo json_encode(['success' => true, 'message' => 'Preferences updated!', 'preferences' => $new_preferences]);
+        Response::json(['success' => true, 'message' => 'Preferences updated!', 'preferences' => $new_preferences]);
         
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Error updating preferences: ' . $e->getMessage()]);
+        Response::error('Error updating preferences: ' . $e->getMessage(), 500);
     }
-    exit;
 }
+
+// Fallback for invalid request method
+Response::error('Invalid request method.', 405);
+?>

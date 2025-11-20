@@ -4,18 +4,19 @@ require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Config\Database;
+use App\Helpers\Response;
+use App\Helpers\Validator;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    Response::error('Unauthorized', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true);
-$action = $data['action'] ?? '';
+$inputs = Validator::sanitize($data ?? []);
+$action = $inputs['action'] ?? '';
 
 try {
     $pdo = Database::getConnection();
@@ -33,14 +34,12 @@ try {
             $message = 'All notifications cleared';
             break;
         default:
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid action']);
-            exit;
+            Response::error('Invalid action', 400);
     }
     
-    echo json_encode(['success' => true, 'message' => $message]);
+    Response::json(['success' => true, 'message' => $message]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error performing action: ' . $e->getMessage()]);
+    Response::error('Error performing action: ' . $e->getMessage(), 500);
 }
+?>

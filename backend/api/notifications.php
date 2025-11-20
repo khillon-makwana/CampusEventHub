@@ -7,13 +7,12 @@ use App\Config\Database;
 use App\Models\User;
 use App\Services\Mailer;
 use App\Services\NotificationManager;
+use App\Helpers\Response;
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    Response::error('Unauthorized', 401);
 }
 
 $user_id = (int)$_SESSION['user_id'];
@@ -59,7 +58,7 @@ try {
     $notificationManager = new NotificationManager(new Mailer());
     $unread_count = $notificationManager->getUnreadCount($user_id);
 
-    echo json_encode([
+    Response::json([
         'success' => true,
         'user' => $user,
         'notifications' => $notifications,
@@ -72,6 +71,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error loading notifications: ' . $e->getMessage()]);
+    Response::error('Error loading notifications: ' . $e->getMessage(), 500);
 }
