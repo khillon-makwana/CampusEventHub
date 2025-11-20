@@ -78,7 +78,6 @@ const AnimatedRoutes = () => {
           path="/payment-status/:paymentId"
           element={<ProtectedRoute><PageTransition><PaymentStatus /></PageTransition></ProtectedRoute>}
         />
-
         <Route
           path="/notifications"
           element={<ProtectedRoute><PageTransition><Notifications /></PageTransition></ProtectedRoute>}
@@ -87,20 +86,14 @@ const AnimatedRoutes = () => {
           path="/notification-settings"
           element={<ProtectedRoute><PageTransition><NotificationSettings /></PageTransition></ProtectedRoute>}
         />
-
-        {/* NEW ROUTE FOR THE ANALYTICS PAGE */}
         <Route
           path="/analytics"
           element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>}
         />
-        {/* Allow filtering by a specific event */}
         <Route
           path="/analytics/:id"
           element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>}
         />
-        {/* --- END NEW ROUTES --- */}
-
-        {/* 404 */}
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
