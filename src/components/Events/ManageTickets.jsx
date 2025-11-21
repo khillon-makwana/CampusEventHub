@@ -165,7 +165,7 @@ export default function ManageTickets() {
                             >
                                 {event.title}
                             </motion.h2>
-                            <p className="text-muted mb-0">
+                            <p className="text-white-50 mb-0">
                                 <i className="fas fa-calendar-alt me-2"></i>{formatDate(event.event_date)}
                                 <span className="mx-2">|</span>
                                 <i className="fas fa-ticket-alt me-2"></i>KSh {Number(event.ticket_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -236,9 +236,9 @@ export default function ManageTickets() {
                     <div className="card-body p-0">
                         {tickets.length === 0 ? (
                             <div className="empty-state p-5 text-center">
-                                <div className="empty-state-icon mb-3"><i className="fas fa-ticket-alt fa-3x text-muted opacity-50"></i></div>
+                                <div className="empty-state-icon mb-3"><i className="fas fa-ticket-alt fa-3x text-white-50 opacity-50"></i></div>
                                 <h4 className="text-white mb-2">No Tickets Sold Yet</h4>
-                                <p className="text-muted mb-4">Tickets will appear here once attendees start purchasing.</p>
+                                <p className="text-white-50 mb-4">Tickets will appear here once attendees start purchasing.</p>
                                 <Link to={`/event/${event.id}`} className="btn btn-primary rounded-pill px-4">
                                     <i className="fas fa-share me-2"></i>Share Your Event
                                 </Link>
@@ -278,7 +278,7 @@ export default function ManageTickets() {
                 {/* Download Section */}
                 <AnimatedSection delay={0.6} className="download-section">
                     <h5 className="mb-2 text-white"><i className="fas fa-download me-2 text-primary"></i>Download Reports</h5>
-                    <p className="text-muted mb-4">Export your ticket data for analysis and record-keeping.</p>
+                    <p className="text-white-50 mb-4">Export your ticket data for analysis and record-keeping.</p>
                     <div className="row g-3 justify-content-center">
                         <div className="col-md-4">
                             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleDownload('csv')} className="download-btn download-btn-csv w-100" disabled={downloading}>
@@ -335,7 +335,7 @@ const TicketRow = ({ ticket, eventPrice, onAction, loading, index }) => (
         <td>
             <div>
                 <strong>{ticket.fullname || 'Guest'}</strong><br />
-                <small className="text-muted">{ticket.email || 'N/A'}</small>
+                <small className="text-white-50">{ticket.email || 'N/A'}</small>
             </div>
         </td>
         <td>

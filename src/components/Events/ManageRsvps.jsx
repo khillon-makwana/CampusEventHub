@@ -212,7 +212,7 @@ export default function ManageRsvps() {
                         <div className="empty-state">
                             <div className="empty-state-icon"><i className="fas fa-user-slash"></i></div>
                             <h4 className="text-white mb-3">No RSVPs Yet</h4>
-                            <p className="text-muted">No attendees have RSVP'd to this event yet.</p>
+                            <p className="text-white-50">No attendees have RSVP'd to this event yet.</p>
                         </div>
                     </AnimatedSection>
                 ) : (
@@ -234,7 +234,7 @@ export default function ManageRsvps() {
                             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
                                 <h5 className="mb-0 text-white"><i className="fas fa-list me-2 text-primary"></i>Attendee List</h5>
                                 <div className="position-relative" style={{ width: '100%', maxWidth: '300px' }}>
-                                    <i className="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <i className="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
                                     <input
                                         type="text"
                                         className="form-control rsvp-search-bar"
@@ -332,9 +332,9 @@ const AttendeeRow = ({ attendee, index, onEdit, onRemove }) => {
                     <strong>{attendee.fullname}</strong>
                 </div>
             </td>
-            <td className="text-muted">{attendee.email}</td>
+            <td className="text-white-50">{attendee.email}</td>
             <td><span className={`status-badge ${statusClass}`}>{attendee.status}</span></td>
-            <td className="text-muted small">{formatDate(attendee.registered_at)}</td>
+            <td className="text-white-50 small">{formatDate(attendee.registered_at)}</td>
             <td>
                 <div className="btn-group">
                     <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="btn btn-sm btn-outline-warning border-0" onClick={onEdit} title="Edit">
@@ -359,21 +359,21 @@ const EditRsvpModal = ({ show, handleClose, handleSave, rsvp, categories, status
             </Modal.Header>
             <Modal.Body className="card-body-custom">
                 <div className="attendee-info">
-                    <h6 className="text-muted mb-3 text-uppercase small fw-bold">Attendee Information</h6>
+                    <h6 className="text-white-50 mb-3 text-uppercase small fw-bold">Attendee Information</h6>
                     <div className="d-flex align-items-center mb-2">
                         <div className="avatar-circle bg-primary bg-opacity-25 text-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
                             {rsvp.fullname.charAt(0).toUpperCase()}
                         </div>
                         <div>
                             <div className="fw-bold">{rsvp.fullname}</div>
-                            <div className="text-muted small">{rsvp.email}</div>
+                            <div className="text-white-50 small">{rsvp.email}</div>
                         </div>
                     </div>
                 </div>
 
                 <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                     <Form.Group className="mb-3">
-                        <Form.Label className="form-label text-muted small">RSVP Status</Form.Label>
+                        <Form.Label className="form-label text-white-50 small">RSVP Status</Form.Label>
                         <Form.Select className="form-select bg-dark text-white border-secondary" value={status} onChange={e => setStatus(e.target.value)}>
                             <option value="going">Going</option>
                             <option value="interested">Interested</option>
@@ -382,7 +382,7 @@ const EditRsvpModal = ({ show, handleClose, handleSave, rsvp, categories, status
                     </Form.Group>
 
                     <Form.Group className="mb-4">
-                        <Form.Label className="form-label text-muted small">Attendee Category</Form.Label>
+                        <Form.Label className="form-label text-white-50 small">Attendee Category</Form.Label>
                         <Form.Select className="form-select bg-dark text-white border-secondary" value={category} onChange={e => setCategory(e.target.value)}>
                             {categories.map(cat => (
                                 <option key={cat.id} value={cat.id}>{cat.name}</option>

@@ -7,17 +7,19 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    color: #f8fafc;
 }
 
 /* Header */
 .analytics-header {
-    background: var(--primary-gradient);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     border-radius: 24px;
     padding: 3rem;
     color: white;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--shadow-glow);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .analytics-header::before {
@@ -50,26 +52,27 @@
 
 /* Filter Section */
 .filter-section {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1.5rem;
     flex-wrap: wrap;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .filter-section label {
     font-weight: 600;
-    color: var(--text-primary);
+    color: #e2e8f0;
 }
 
 .filter-section .form-select {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
+    background-color: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
     padding: 0.6rem 1rem;
     border-radius: 10px;
     min-width: 200px;
@@ -77,21 +80,21 @@
 }
 
 .filter-section .form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
     outline: none;
 }
 
 .filter-section .form-select option {
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
+    background-color: #1e293b;
+    color: #f8fafc;
 }
 
 .btn-print {
     margin-left: auto;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
     padding: 0.6rem 1.2rem;
     border-radius: 10px;
     font-weight: 600;
@@ -104,6 +107,7 @@
 .btn-print:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Metrics Grid */
@@ -114,20 +118,22 @@
 }
 
 .analytics-metric-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .analytics-metric-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--shadow-elevation);
-    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(30, 41, 59, 0.6);
 }
 
 .metric-icon {
@@ -136,7 +142,7 @@
     right: 1rem;
     font-size: 2.5rem;
     opacity: 0.1;
-    color: black;
+    color: #f8fafc;
     transform: rotate(-10deg);
     transition: all 0.3s ease;
 }
@@ -144,13 +150,13 @@
 .analytics-metric-card:hover .metric-icon {
     opacity: 0.2;
     transform: rotate(0deg) scale(1.1);
-    color: var(--primary-color);
+    color: #8b5cf6;
 }
 
 .analytics-metric-card h3 {
     font-size: 0.9rem;
     font-weight: 600;
-    color: black;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
@@ -159,12 +165,13 @@
 .analytics-metric-card p {
     font-size: 2rem;
     font-weight: 800;
-    color: black;
+    color: #f8fafc;
     margin: 0;
     line-height: 1.2;
-    background: var(--primary-gradient);
+    background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: opaque;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 /* Charts Grid */
@@ -175,18 +182,19 @@
 }
 
 .analytics-chart-box {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     padding: 2rem;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     height: 100%;
 }
 
 .analytics-chart-box h4 {
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #f8fafc;
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -198,23 +206,24 @@
     display: block;
     width: 4px;
     height: 20px;
-    background: var(--primary-color);
+    background: #8b5cf6;
     border-radius: 2px;
 }
 
 /* Data Table */
 .analytics-data-table {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     padding: 2rem;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .analytics-data-table h4 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #f8fafc;
     margin-bottom: 1.5rem;
 }
 
@@ -226,7 +235,7 @@
 
 .feedback-item {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 1.5rem;
     transition: all 0.3s ease;
@@ -235,6 +244,7 @@
 .feedback-item:hover {
     background: rgba(255, 255, 255, 0.05);
     transform: translateX(5px);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .feedback-header {
@@ -253,15 +263,15 @@
 
 .feedback-event {
     font-size: 0.85rem;
-    color: var(--primary-color);
+    color: #a78bfa;
     font-weight: 600;
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(139, 92, 246, 0.1);
     padding: 0.2rem 0.6rem;
     border-radius: 6px;
 }
 
 .feedback-comment {
-    color: var(--text-primary);
+    color: #e2e8f0;
     font-style: italic;
     margin-bottom: 0.8rem;
     line-height: 1.6;
@@ -269,7 +279,7 @@
 
 .feedback-meta {
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: #94a3b8;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -288,6 +298,7 @@
 
     .analytics-container {
         padding: 0;
+        color: black;
     }
 
     .analytics-header {
@@ -309,12 +320,17 @@
         border: 1px solid #ddd;
         box-shadow: none;
         break-inside: avoid;
+        color: black;
     }
 
     .analytics-metric-card p {
         background: none;
         -webkit-text-fill-color: black;
         color: black;
+    }
+
+    .analytics-metric-card h3 {
+        color: #666;
     }
 
     body {

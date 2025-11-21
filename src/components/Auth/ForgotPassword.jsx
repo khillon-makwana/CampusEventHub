@@ -59,7 +59,7 @@ export default function ForgotPassword() {
                     <i className="fas fa-key" style={{ fontSize: '3rem', color: 'var(--primary)' }}></i>
                   </div>
                   <h2 className="auth-header mb-2">Forgot Password?</h2>
-                  <p className="text-muted" style={{ fontSize: '0.95rem' }}>
+                  <p className="text-white-50" style={{ fontSize: '0.95rem' }}>
                     No worries! Enter your email and we'll send you reset instructions.
                   </p>
                 </div>
@@ -115,7 +115,7 @@ export default function ForgotPassword() {
                     <div className="mb-4">
                       <i className="fas fa-envelope-circle-check" style={{ fontSize: '4rem', color: 'var(--success, #10b981)' }}></i>
                     </div>
-                    <p className="mb-4 text-muted">
+                    <p className="mb-4 text-white-50">
                       Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your spam folder.
                     </p>
                     <Link to="/login" className="btn auth-button w-100">

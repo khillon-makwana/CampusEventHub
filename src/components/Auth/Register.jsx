@@ -126,7 +126,7 @@ export default function Register() {
                   </motion.button>
 
                   <div className="text-center">
-                    <span className="text-muted" style={{ fontSize: '0.95rem' }}>
+                    <span className="text-white-50" style={{ fontSize: '0.95rem' }}>
                       Already have an account?{' '}
                     </span>
                     <Link to="/login" className="auth-link fw-bold" style={{ fontSize: '0.95rem' }}>

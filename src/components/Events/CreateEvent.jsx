@@ -191,7 +191,7 @@ export default function CreateEvent() {
                                 <motion.div className="col-md-6 mb-4" variants={itemVariants}>
                                     <label className="form-label">Location <span className="text-danger">*</span></label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-light border-end-0 rounded-start-4"><i className="fas fa-map-marker-alt text-muted"></i></span>
+                                        <span className="input-group-text bg-dark border-secondary border-end-0 rounded-start-4"><i className="fas fa-map-marker-alt text-white-50"></i></span>
                                         <input
                                             type="text"
                                             name="location"
@@ -257,7 +257,7 @@ export default function CreateEvent() {
                                 <motion.div className="col-md-4 mb-4" variants={itemVariants}>
                                     <label className="form-label">Price (KSh) <span className="text-danger">*</span></label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-light border-end-0 rounded-start-4">KSh</span>
+                                        <span className="input-group-text bg-dark border-secondary border-end-0 rounded-start-4 text-white-50">KSh</span>
                                         <input
                                             type="number"
                                             step="0.01"

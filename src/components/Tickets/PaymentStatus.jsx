@@ -1,3 +1,4 @@
+
 // src/components/Tickets/PaymentStatus.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -5,6 +6,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiGet, apiPost } from '../../api';
 import Layout from '../Layout';
 import './PaymentStatus.css';
+
+// Animated Section Wrapper
+const AnimatedSection = ({ children, className = '', delay = 0.1 }) => (
+    <motion.div
+        className={className}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20, delay }}
+    >
+        {children}
+    </motion.div>
+);
 
 export default function PaymentStatus() {
     const { paymentId } = useParams();
@@ -128,128 +141,133 @@ export default function PaymentStatus() {
     return (
         <Layout user={user} hideNav={true} hideFooter={true}>
             <div className="payment-status-wrapper">
-                <motion.div
-                    className="payment-card"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                >
-                    <div className="payment-header">
-                        <div className="mpesa-icon-large">
-                            <i className="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4>M-Pesa Payment</h4>
-                    </div>
-
-                    <div className="payment-body">
-                        <AnimatePresence>
-                            {error && (
-                                <motion.div
-                                    className="alert alert-danger mb-4"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                >
-                                    {error}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        <div className="info-banner">
-                            <i className="fas fa-info-circle"></i>
-                            <div>
-                                <h5>Secure Payment</h5>
-                                <p>Enter your M-Pesa number to receive a payment prompt.</p>
+                <AnimatedSection>
+                    <div className="payment-card">
+                        <div className="payment-header">
+                            <div className="mpesa-icon-large">
+                                <i className="fas fa-mobile-alt"></i>
                             </div>
+                            <h4>M-Pesa Payment</h4>
                         </div>
 
-                        <div className="details-list">
-                            <div className="detail-row">
-                                <span className="detail-label">Event</span>
-                                <span className="detail-value">{payment.event_title}</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Quantity</span>
-                                <span className="detail-value">{payment.quantity} ticket(s)</span>
-                            </div>
-                            <div className="detail-row">
-                                <span className="detail-label">Total Amount</span>
-                                <span className="detail-value amount-highlight">
-                                    KSh {Number(payment.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </span>
-                            </div>
-                        </div>
-
-                        <AnimatePresence mode="wait">
-                            {!stkSent ? (
-                                <motion.form
-                                    key="form"
-                                    onSubmit={handleStkPush}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 20 }}
-                                >
-                                    <div className="phone-input-group">
-                                        <label htmlFor="phone">M-Pesa Number</label>
-                                        <input
-                                            type="text"
-                                            id="phone"
-                                            className="phone-input"
-                                            value={phone}
-                                            onChange={e => setPhone(e.target.value)}
-                                            placeholder="2547XXXXXXXX"
-                                            required
-                                            pattern="2547\d{8}"
-                                            title="Format: 2547XXXXXXXX"
-                                        />
-                                    </div>
-
-                                    <button type="submit" className="btn-pay" disabled={stkLoading}>
-                                        {stkLoading ? <span className="spinner-border spinner-border-sm"></span> : <i className="fas fa-lock"></i>}
-                                        {stkLoading ? 'Sending Request...' : 'Pay Now'}
-                                    </button>
-
-                                    <Link to={`/event/${payment.event_id}`} className="btn-cancel-link">
-                                        Cancel Transaction
-                                    </Link>
-                                </motion.form>
-                            ) : (
-                                <motion.div
-                                    key="awaiting"
-                                    className="awaiting-box"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                >
-                                    <div className="awaiting-spinner"></div>
-                                    <h5 className="awaiting-text">Check your phone</h5>
-                                    <p className="awaiting-subtext">Enter your M-Pesa PIN to complete the payment.</p>
-
-                                    <button
-                                        type="button"
-                                        className="btn-refresh"
-                                        onClick={handleManualRefresh}
-                                        disabled={stkLoading}
+                        <div className="payment-body">
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div
+                                        className="alert alert-danger mb-4"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
                                     >
-                                        <i className="fas fa-sync-alt me-2"></i>
-                                        {stkLoading ? 'Checking...' : 'I have paid'}
-                                    </button>
+                                        {error}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
-                                    <div className="mt-3">
-                                        <Link to={`/event/${payment.event_id}`} className="btn-cancel-link text-sm">
-                                            Cancel
-                                        </Link>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                            <div className="info-banner">
+                                <i className="fas fa-info-circle"></i>
+                                <div>
+                                    <h5>Secure Payment</h5>
+                                    <p>Enter your M-Pesa number to receive a payment prompt.</p>
+                                </div>
+                            </div>
 
-                        <div className="security-note">
-                            <i className="fas fa-shield-alt me-1"></i>
-                            Secured by M-Pesa Daraja API
+                            <div className="details-list">
+                                <div className="detail-row">
+                                    <span className="detail-label">Event</span>
+                                    <span className="detail-value">{payment.event_title}</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Quantity</span>
+                                    <span className="detail-value">{payment.quantity} ticket(s)</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Total Amount</span>
+                                    <span className="detail-value amount-highlight">
+                                        KSh {Number(payment.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <AnimatePresence mode="wait">
+                                {!stkSent ? (
+                                    <motion.form
+                                        key="form"
+                                        onSubmit={handleStkPush}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                    >
+                                        <div className="phone-input-group">
+                                            <label htmlFor="phone">M-Pesa Number</label>
+                                            <input
+                                                type="text"
+                                                id="phone"
+                                                className="phone-input"
+                                                value={phone}
+                                                onChange={e => setPhone(e.target.value)}
+                                                placeholder="2547XXXXXXXX"
+                                                required
+                                                pattern="2547\d{8}"
+                                                title="Format: 2547XXXXXXXX"
+                                            />
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            className="btn-submit-mpesa"
+                                            disabled={stkLoading}
+                                        >
+                                            {stkLoading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2"></span>
+                                                    Sending...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="fas fa-paper-plane me-2"></i>
+                                                    Send Payment Request
+                                                </>
+                                            )}
+                                        </button>
+                                    </motion.form>
+                                ) : (
+                                    <motion.div
+                                        key="awaiting"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                    >
+                                        <div className="awaiting-spinner"></div>
+                                        <h5 className="awaiting-text">Check your phone</h5>
+                                        <p className="awaiting-subtext">Enter your M-Pesa PIN to complete the payment.</p>
+
+                                        <button
+                                            type="button"
+                                            className="btn-refresh"
+                                            onClick={handleManualRefresh}
+                                            disabled={stkLoading}
+                                        >
+                                            <i className="fas fa-sync-alt me-2"></i>
+                                            {stkLoading ? 'Checking...' : 'I have paid'}
+                                        </button>
+
+                                        <div className="mt-3">
+                                            <Link to={`/event/${payment.event_id}`} className="btn-cancel-link text-sm">
+                                                Cancel
+                                            </Link>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="security-note">
+                                <i className="fas fa-shield-alt me-1"></i>
+                                Secured by M-Pesa Daraja API
+                            </div>
                         </div>
                     </div>
-                </motion.div>
+                </AnimatedSection>
             </div>
         </Layout>
     );

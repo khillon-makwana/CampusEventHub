@@ -1,4 +1,3 @@
-// src/components/Dashboard/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { apiGet } from "../../api";
 import Layout from '../Layout';
@@ -146,7 +145,14 @@ export default function Dashboard() {
                     {userEvents && userEvents.length > 0 ? (
                         <div className="events-grid">
                             {userEvents.slice(0, 3).map((event, index) => (
-                                <EventCard key={event.id} event={event} isOwner={true} delay={index} />
+                                <EventCard key={event.id} event={event} delay={index}>
+                                    <Link to={`/edit-event/${event.id}`} className="btn btn-card-edit">
+                                        <i className="fas fa-edit"></i>
+                                    </Link>
+                                    <Link to={`/event/${event.id}`} className="btn btn-card-view">
+                                        View <i className="fas fa-arrow-right"></i>
+                                    </Link>
+                                </EventCard>
                             ))}
                         </div>
                     ) : (
@@ -173,7 +179,7 @@ export default function Dashboard() {
                     {recommendedEvents && recommendedEvents.length > 0 ? (
                         <div className="events-grid">
                             {recommendedEvents.slice(0, 3).map((event, index) => (
-                                <EventCard key={event.id} event={event} isOwner={false} delay={index} />
+                                <EventCard key={event.id} event={event} delay={index} />
                             ))}
                         </div>
                     ) : (

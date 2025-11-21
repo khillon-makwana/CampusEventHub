@@ -139,7 +139,7 @@ export default function MyTickets() {
                     <div className="d-flex justify-content-between align-items-center">
                         <div>
                             <h2><i className="fas fa-ticket-alt"></i> My Tickets</h2>
-                            <p>Manage your upcoming events and tickets</p>
+                            <p className="text-white-50">Manage your upcoming events and tickets</p>
                         </div>
                     </div>
                 </AnimatedSection>
@@ -165,8 +165,8 @@ export default function MyTickets() {
                 {tickets.length === 0 ? (
                     <AnimatedSection delay={0.3} className="empty-state">
                         <div className="empty-state-icon"><i className="fas fa-ticket-alt"></i></div>
-                        <h3>No Tickets Yet</h3>
-                        <p>You haven't purchased any tickets yet. Start exploring amazing events!</p>
+                        <h3 className="text-white">No Tickets Yet</h3>
+                        <p className="text-white-50">You haven't purchased any tickets yet. Start exploring amazing events!</p>
                         <Link to="/events" className="btn-browse-events">
                             <i className="fas fa-calendar-plus"></i> Browse Events
                         </Link>

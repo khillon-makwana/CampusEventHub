@@ -128,7 +128,7 @@ export default function NotificationSettings() {
                             )}
                         </AnimatePresence>
 
-                        <p className="text-muted mb-4">
+                        <p className="text-white-50 mb-4">
                             Manage how and when you receive notifications from EventHub.
                         </p>
 

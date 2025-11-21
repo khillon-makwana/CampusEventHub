@@ -289,21 +289,21 @@ export default function EventDetails() {
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="avatar-glow"><i className="fas fa-user"></i></div>
                                     <div>
-                                        <small className="text-muted d-block text-uppercase fw-bold" style={{ fontSize: '0.7rem', letterSpacing: '1px' }}>Organizer</small>
+                                        <small className="text-white-50 d-block text-uppercase fw-bold" style={{ fontSize: '0.7rem', letterSpacing: '1px' }}>Organizer</small>
                                         <strong className="fs-5">{event.organizer_name}</strong>
                                     </div>
                                 </div>
                                 <div className="d-flex gap-4">
                                     <div className="text-center">
                                         <div className="fw-bold fs-4 text-primary">{event.attendee_count}</div>
-                                        <small className="text-muted">Attending</small>
+                                        <small className="text-white-50">Attending</small>
                                     </div>
                                     <div className="vr"></div>
                                     <div className="text-center">
                                         <div className="fw-bold fs-4 text-success">
                                             {event.ticket_price > 0 ? `KSh ${Number(event.ticket_price).toLocaleString()}` : 'Free'}
                                         </div>
-                                        <small className="text-muted">Price</small>
+                                        <small className="text-white-50">Price</small>
                                     </div>
                                 </div>
                             </div>
@@ -320,7 +320,7 @@ export default function EventDetails() {
 
                             {event.category_names && (
                                 <div className="mb-4">
-                                    <strong className="d-block mb-3 text-muted text-uppercase" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>Categories</strong>
+                                    <strong className="d-block mb-3 text-white-50 text-uppercase" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>Categories</strong>
                                     <div className="d-flex flex-wrap">
                                         {event.category_names.split(', ').map(cat => (
                                             <motion.span
@@ -337,9 +337,9 @@ export default function EventDetails() {
                             )}
 
                             <div className="mt-4">
-                                <strong className="d-block mb-3 text-muted text-uppercase" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>Description</strong>
-                                <div className="p-3 bg-light rounded-3 border border-light">
-                                    <p style={{ lineHeight: 1.8, fontSize: '1.05rem', color: '#4a5568' }} dangerouslySetInnerHTML={{ __html: event.description.replace(/\n/g, '<br />') }} />
+                                <strong className="d-block mb-3 text-white-50 text-uppercase" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>Description</strong>
+                                <div className="p-3 bg-dark bg-opacity-25 rounded-3 border border-light border-opacity-10">
+                                    <p style={{ lineHeight: 1.8, fontSize: '1.05rem', color: '#e2e8f0' }} dangerouslySetInnerHTML={{ __html: event.description.replace(/\n/g, '<br />') }} />
                                 </div>
                             </div>
                         </motion.div>
@@ -402,8 +402,8 @@ const MetaCard = ({ icon, title, value }) => (
             <div className="d-flex align-items-center">
                 <div className="meta-icon"><i className={`fas ${icon}`}></i></div>
                 <div>
-                    <strong className="d-block mb-1 text-dark">{title}</strong>
-                    <span className="text-muted">{value}</span>
+                    <strong className="d-block mb-1 text-white">{title}</strong>
+                    <span className="text-white-50">{value}</span>
                 </div>
             </div>
         </div>
@@ -413,9 +413,9 @@ const MetaCard = ({ icon, title, value }) => (
 const FeedbackList = ({ feedbacks }) => {
     if (feedbacks.length === 0) {
         return (
-            <div className="text-center py-5 bg-light rounded-3 mb-4 border border-dashed">
-                <i className="fas fa-comment-slash text-muted mb-3" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
-                <p className="text-muted mb-0">No reviews yet. Be the first to share your thoughts!</p>
+            <div className="text-center py-5 bg-dark bg-opacity-25 rounded-3 mb-4 border border-dashed border-secondary">
+                <i className="fas fa-comment-slash text-white-50 mb-3" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
+                <p className="text-white-50 mb-0">No reviews yet. Be the first to share your thoughts!</p>
             </div>
         );
     }
@@ -435,15 +435,15 @@ const FeedbackList = ({ feedbacks }) => {
                         </div>
                         <div className="flex-grow-1">
                             <div className="d-flex justify-content-between align-items-center mb-1">
-                                <strong className="text-dark">{fb.fullname}</strong>
+                                <strong className="text-white">{fb.fullname}</strong>
                                 <div className="star-rating-static text-warning" style={{ fontSize: '0.8rem' }}>
                                     {[...Array(5)].map((_, i) => (
                                         <i key={i} className={`fas fa-star ${i < fb.rating ? '' : 'text-muted opacity-25'}`}></i>
                                     ))}
                                 </div>
                             </div>
-                            {fb.comment && <p className="mb-2 text-secondary small">{fb.comment}</p>}
-                            <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>
+                            {fb.comment && <p className="mb-2 text-white-50 small">{fb.comment}</p>}
+                            <small className="text-white-50 d-block" style={{ fontSize: '0.75rem' }}>
                                 <i className="fas fa-clock me-1"></i> {formatDate(fb.created_at)}
                             </small>
                         </div>
@@ -457,11 +457,11 @@ const FeedbackList = ({ feedbacks }) => {
 const FeedbackForm = ({ user, event, attendanceStatus, userFeedback, rating, setRating, comment, setComment, onSubmit, onDelete, loading }) => {
     if (attendanceStatus === 'going' && (event.status === 'ongoing' || event.status === 'completed')) {
         return (
-            <div className="bg-light p-4 rounded-3 border border-light">
+            <div className="bg-dark bg-opacity-25 p-4 rounded-3 border border-light border-opacity-10">
                 <h6 className="mb-3 fw-bold"><i className="fas fa-pen me-2 text-primary"></i> {userFeedback ? 'Update Your Feedback' : 'Leave Your Feedback'}</h6>
                 <form onSubmit={onSubmit}>
                     <div className="mb-3">
-                        <label className="form-label small text-uppercase text-muted fw-bold">Rating</label>
+                        <label className="form-label small text-uppercase text-white-50 fw-bold">Rating</label>
                         <div className="star-rating">
                             {[5, 4, 3, 2, 1].map(star => (
                                 <React.Fragment key={star}>
@@ -474,8 +474,8 @@ const FeedbackForm = ({ user, event, attendanceStatus, userFeedback, rating, set
                         </div>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="comment" className="form-label small text-uppercase text-muted fw-bold">Comment (Optional)</label>
-                        <textarea className="form-control" id="comment" name="comment" rows="3"
+                        <label htmlFor="comment" className="form-label small text-uppercase text-white-50 fw-bold">Comment (Optional)</label>
+                        <textarea className="form-control bg-dark text-white border-secondary" id="comment" name="comment" rows="3"
                             placeholder="Share your experience..."
                             value={comment}
                             onChange={e => setComment(e.target.value)}
@@ -523,18 +523,18 @@ const FeedbackForm = ({ user, event, attendanceStatus, userFeedback, rating, set
     }
     if (!user) {
         return (
-            <div className="text-center mt-4 p-4 bg-light rounded-3">
-                <i className="fas fa-lock text-muted mb-2" style={{ fontSize: '2rem' }}></i>
-                <h6 className="text-dark">Sign in to leave feedback</h6>
+            <div className="text-center mt-4 p-4 bg-dark bg-opacity-25 rounded-3 border border-light border-opacity-10">
+                <i className="fas fa-lock text-white-50 mb-2" style={{ fontSize: '2rem' }}></i>
+                <h6 className="text-white">Sign in to leave feedback</h6>
                 <Link to="/login" className="btn btn-sm btn-primary mt-2 px-4 rounded-pill">Sign In</Link>
             </div>
         );
     }
     if (user && attendanceStatus !== 'going') {
         return (
-            <div className="alert alert-light mt-3 border d-flex align-items-center gap-3" style={{ borderRadius: '16px' }}>
-                <i className="fas fa-info-circle text-muted fs-4"></i>
-                <div className="small text-muted">RSVP as "going" to leave feedback.</div>
+            <div className="alert alert-light mt-3 border d-flex align-items-center gap-3 bg-dark bg-opacity-25 text-white border-secondary" style={{ borderRadius: '16px' }}>
+                <i className="fas fa-info-circle text-white-50 fs-4"></i>
+                <div className="small text-white-50">RSVP as "going" to leave feedback.</div>
             </div>
         );
     }
@@ -547,10 +547,10 @@ const SidebarActions = ({ user, event, isOwner, attendanceStatus, onRsvpAction, 
             <h5 className="mb-4 fw-bold"><i className="fas fa-bolt me-2 text-warning"></i> Actions</h5>
 
             {!user && (
-                <div className="text-center p-4 bg-light rounded-3">
-                    <i className="fas fa-user-lock text-muted mb-3" style={{ fontSize: '2.5rem' }}></i>
+                <div className="text-center p-4 bg-dark bg-opacity-25 rounded-3 border border-light border-opacity-10">
+                    <i className="fas fa-user-lock text-white-50 mb-3" style={{ fontSize: '2.5rem' }}></i>
                     <h6>Sign in to RSVP</h6>
-                    <p className="small text-muted mb-3">Join the community to attend events.</p>
+                    <p className="small text-white-50 mb-3">Join the community to attend events.</p>
                     <Link to="/login" className="btn action-btn action-btn-primary w-100">Sign In</Link>
                 </div>
             )}
@@ -655,7 +655,7 @@ const SimilarEvents = ({ events }) => {
         <motion.div className="glass-card p-4" whileHover={{ y: -5 }}>
             <h6 className="mb-3 fw-bold"><i className="fas fa-layer-group me-2 text-primary"></i> Similar Events</h6>
             {events.map(event => (
-                <Link to={`/event/${event.id}`} className="similar-event-card d-flex align-items-center gap-3 mb-3 text-decoration-none text-dark" key={event.id}>
+                <Link to={`/event/${event.id}`} className="similar-event-card d-flex align-items-center gap-3 mb-3 text-decoration-none text-white" key={event.id}>
                     {event.image ? (
                         <img src={`http://localhost/CampusEventHub/${event.image}`}
                             style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '12px' }} alt={event.title} />
@@ -666,7 +666,7 @@ const SimilarEvents = ({ events }) => {
                     )}
                     <div className="flex-grow-1 overflow-hidden">
                         <strong className="d-block text-truncate">{event.title}</strong>
-                        <small className="text-muted d-block"><i className="fas fa-map-marker-alt me-1"></i> {event.location}</small>
+                        <small className="text-white-50 d-block"><i className="fas fa-map-marker-alt me-1"></i> {event.location}</small>
                         <small className="text-primary fw-bold">{formatDateShort(event.event_date)}</small>
                     </div>
                 </Link>

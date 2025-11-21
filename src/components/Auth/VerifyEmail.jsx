@@ -39,7 +39,7 @@ export default function VerifyEmail() {
                 </div>
 
                 <h3 className="auth-header mb-3">{isSuccess ? 'Verified!' : 'Verification Failed'}</h3>
-                <p className="text-muted mb-4">{status}</p>
+                <p className="text-white-50 mb-4">{status}</p>
 
                 <Link to="/login" className="btn auth-button w-100">
                   {isSuccess ? 'Continue to Login' : 'Back to Login'}

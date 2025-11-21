@@ -60,7 +60,7 @@ export default function ResetPassword() {
                 >
                   <div className="auth-logo">EventHub</div>
                   <h2 className="auth-header">Invalid Link</h2>
-                  <p className="text-muted mb-4">This password reset link is invalid or has expired.</p>
+                  <p className="text-white-50 mb-4">This password reset link is invalid or has expired.</p>
                   <Link to="/forgot-password" className="btn auth-button w-100">
                     Request New Link
                   </Link>
@@ -113,7 +113,7 @@ export default function ResetPassword() {
                       required
                       disabled={loading}
                     />
-                    <small className="text-muted d-block mt-1 ms-1">
+                    <small className="text-white-50 d-block mt-1 ms-1">
                       Must be at least 6 characters
                     </small>
                   </div>

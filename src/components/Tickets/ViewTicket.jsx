@@ -8,6 +8,18 @@ import './ViewTicket.css';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
+// Animated Section Wrapper
+const AnimatedSection = ({ children, className = '', delay = 0.1 }) => (
+    <motion.div
+        className={className}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20, delay }}
+    >
+        {children}
+    </motion.div>
+);
+
 // Helper to format date
 const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('en-US', {
@@ -148,90 +160,92 @@ export default function ViewTicket() {
                 </AnimatePresence>
 
                 {/* Ticket Visual */}
-                <motion.div
-                    className="ticket-visual"
-                    id="ticketContainer"
-                    initial={{ opacity: 0, y: 50, rotateX: -10 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                >
-                    {/* Header */}
-                    <div className="ticket-visual-header">
-                        <span className="ticket-type-badge">General Admission</span>
-                        <h1 className="ticket-event-title">{ticket.event_title}</h1>
-                        <p className="mb-0 text-white-50">Present this ticket at the entrance</p>
-                    </div>
+                <AnimatedSection>
+                    <motion.div
+                        className="ticket-visual"
+                        id="ticketContainer"
+                        initial={{ opacity: 0, y: 50, rotateX: -10 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                    >
+                        {/* Header */}
+                        <div className="ticket-visual-header">
+                            <span className="ticket-type-badge">General Admission</span>
+                            <h1 className="ticket-event-title">{ticket.event_title}</h1>
+                            <p className="mb-0 text-white-50">Present this ticket at the entrance</p>
+                        </div>
 
-                    {/* Divider */}
-                    <div className="ticket-visual-divider">
-                        <div className="dashed-line"></div>
-                    </div>
+                        {/* Divider */}
+                        <div className="ticket-visual-divider">
+                            <div className="dashed-line"></div>
+                        </div>
 
-                    {/* Body */}
-                    <div className="ticket-visual-body">
-                        <div className="qr-container">
-                            <div className="qr-code-box">
-                                <i className="fas fa-qrcode"></i>
+                        {/* Body */}
+                        <div className="ticket-visual-body">
+                            <div className="qr-container">
+                                <div className="qr-code-box">
+                                    <i className="fas fa-qrcode"></i>
+                                </div>
+                            </div>
+
+                            <div className="ticket-code-display">
+                                <div
+                                    className="code-text"
+                                    onClick={copyTicketCode}
+                                    title="Click to copy"
+                                >
+                                    {ticket.ticket_code}
+                                </div>
+                                <span className="copy-hint">Tap code to copy</span>
+                            </div>
+
+                            <div className="ticket-details-grid">
+                                <div className="detail-item">
+                                    <span className="detail-label"><i className="far fa-calendar"></i> Date & Time</span>
+                                    <span className="detail-value">{formatDate(ticket.event_date)}</span>
+                                </div>
+                                <div className="detail-item">
+                                    <span className="detail-label"><i className="fas fa-map-marker-alt"></i> Location</span>
+                                    <span className="detail-value">{ticket.location}</span>
+                                </div>
+                                <div className="detail-item">
+                                    <span className="detail-label"><i className="far fa-user"></i> Attendee</span>
+                                    <span className="detail-value">{ticket.user_name}</span>
+                                </div>
+                                <div className="detail-item">
+                                    <span className="detail-label"><i className="fas fa-receipt"></i> Transaction ID</span>
+                                    <span className="detail-value">{ticket.transaction_id || 'N/A'}</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="ticket-code-display">
-                            <div
-                                className="code-text"
-                                onClick={copyTicketCode}
-                                title="Click to copy"
-                            >
-                                {ticket.ticket_code}
-                            </div>
-                            <span className="copy-hint">Tap code to copy</span>
+                        {/* Footer */}
+                        <div className="ticket-visual-footer">
+                            <div className="ticket-id">Ticket ID: #{ticket.id}</div>
+                            <span className={`status-pill ${ticket.status}`}>
+                                {ticket.status}
+                            </span>
                         </div>
+                    </motion.div>
 
-                        <div className="ticket-details-grid">
-                            <div className="detail-item">
-                                <span className="detail-label"><i className="far fa-calendar"></i> Date & Time</span>
-                                <span className="detail-value">{formatDate(ticket.event_date)}</span>
-                            </div>
-                            <div className="detail-item">
-                                <span className="detail-label"><i className="fas fa-map-marker-alt"></i> Location</span>
-                                <span className="detail-value">{ticket.location}</span>
-                            </div>
-                            <div className="detail-item">
-                                <span className="detail-label"><i className="far fa-user"></i> Attendee</span>
-                                <span className="detail-value">{ticket.user_name}</span>
-                            </div>
-                            <div className="detail-item">
-                                <span className="detail-label"><i className="fas fa-receipt"></i> Transaction ID</span>
-                                <span className="detail-value">{ticket.transaction_id || 'N/A'}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="ticket-visual-footer">
-                        <div className="ticket-id">Ticket ID: #{ticket.id}</div>
-                        <span className={`status-pill ${ticket.status}`}>
-                            {ticket.status}
-                        </span>
-                    </div>
-                </motion.div>
-
-                {/* Action Buttons */}
-                <motion.div
-                    className="ticket-actions-bar no-print"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <button onClick={() => handleDownload('pdf')} className="btn-action btn-action-primary">
-                        <i className="fas fa-file-pdf"></i> Download PDF
-                    </button>
-                    <button onClick={() => handleDownload('image')} className="btn-action btn-action-secondary">
-                        <i className="fas fa-image"></i> Save Image
-                    </button>
-                    <button onClick={() => window.print()} className="btn-action btn-action-secondary">
-                        <i className="fas fa-print"></i> Print
-                    </button>
-                </motion.div>
+                    {/* Action Buttons */}
+                    <motion.div
+                        className="ticket-actions-bar no-print"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        <button onClick={() => handleDownload('pdf')} className="btn-action btn-action-primary">
+                            <i className="fas fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button onClick={() => handleDownload('image')} className="btn-action btn-action-secondary">
+                            <i className="fas fa-image"></i> Save Image
+                        </button>
+                        <button onClick={() => window.print()} className="btn-action btn-action-secondary">
+                            <i className="fas fa-print"></i> Print
+                        </button>
+                    </motion.div>
+                </AnimatedSection>
 
             </div>
         </Layout>

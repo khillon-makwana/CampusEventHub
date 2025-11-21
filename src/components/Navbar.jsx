@@ -128,7 +128,7 @@ export default function Navbar({ user, unreadCount }) {
                     {/* Logo on the left */}
                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Link to="/dashboard" className="brand-logo">
-                            <i className="fas fa-calendar-star"></i>EventHub
+                            <i className="fas fa-atom"></i>EventHub
                         </Link>
                     </motion.div>
 
@@ -174,43 +174,42 @@ export default function Navbar({ user, unreadCount }) {
                                 <div className="user-info">
                                     <Avatar user={user} />
                                     <span className="user-name d-none d-xl-block">{user?.fullname || 'Guest'}</span>
-                                    <i className={`fas fa-chevron-down ms-1 text-muted small transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} style={{ transition: 'transform 0.3s' }}></i>
+                                    <i className={`fas fa-chevron-down ms-1 text-white-50 small transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} style={{ transition: 'transform 0.3s' }}></i>
                                 </div>
                             </motion.div>
 
                             <AnimatePresence>
                                 {dropdownOpen && (
                                     <motion.div
-                                        className="dropdown-menu show position-absolute end-0 mt-2 shadow-lg border-0 rounded-4 overflow-hidden"
-                                        style={{ minWidth: '200px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}
+                                        className="dropdown-menu show position-absolute end-0 mt-2 dropdown-menu-custom rounded-4 overflow-hidden"
                                         variants={dropdownVariants}
                                         initial="hidden"
                                         animate="visible"
                                         exit="exit"
                                     >
-                                        <div className="px-4 py-3 border-bottom bg-light bg-opacity-50">
-                                            <p className="mb-0 fw-bold text-dark">{user?.fullname || 'Guest'}</p>
-                                            <small className="text-muted">{user?.email || 'user@example.com'}</small>
+                                        <div className="px-4 py-3 border-bottom border-secondary border-opacity-25">
+                                            <p className="mb-0 fw-bold text-white">{user?.fullname || 'Guest'}</p>
+                                            <small className="text-white-50">{user?.email || 'user@example.com'}</small>
                                         </div>
                                         <div className="py-2">
                                             <Link to="/profile" className="dropdown-item px-4 py-2 d-flex align-items-center gap-2" onClick={() => setDropdownOpen(false)}>
-                                                <i className="fas fa-user text-primary opacity-75" style={{ width: '20px' }}></i> Profile
+                                                <i className="fas fa-user text-primary-400"></i> Profile
                                             </Link>
                                             <Link to="/my-events" className="dropdown-item px-4 py-2 d-flex align-items-center gap-2" onClick={() => setDropdownOpen(false)}>
-                                                <i className="fas fa-calendar-check text-primary opacity-75" style={{ width: '20px' }}></i> My Events
+                                                <i className="fas fa-calendar-check text-primary-400"></i> My Events
                                             </Link>
                                             <Link to="/tickets" className="dropdown-item px-4 py-2 d-flex align-items-center gap-2" onClick={() => setDropdownOpen(false)}>
-                                                <i className="fas fa-ticket-alt text-primary opacity-75" style={{ width: '20px' }}></i> My Tickets
+                                                <i className="fas fa-ticket-alt text-primary-400"></i> My Tickets
                                             </Link>
                                             <Link to="/notification-settings" className="dropdown-item px-4 py-2 d-flex align-items-center gap-2" onClick={() => setDropdownOpen(false)}>
-                                                <i className="fas fa-cog text-primary opacity-75" style={{ width: '20px' }}></i> Settings
+                                                <i className="fas fa-cog text-primary-400"></i> Settings
                                             </Link>
                                             <div className="dropdown-divider my-2"></div>
                                             <button
                                                 onClick={handleLogout}
                                                 className="dropdown-item px-4 py-2 d-flex align-items-center gap-2 text-danger"
                                             >
-                                                <i className="fas fa-sign-out-alt" style={{ width: '20px' }}></i> Sign Out
+                                                <i className="fas fa-sign-out-alt"></i> Sign Out
                                             </button>
                                         </div>
                                     </motion.div>

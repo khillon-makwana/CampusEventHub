@@ -99,7 +99,7 @@ export default function Footer() {
                     {/* Newsletter */}
                     <motion.div className="col-lg-4 col-md-6" variants={itemVariants}>
                         <h5 className="footer-heading">Stay Updated</h5>
-                        <p className="mb-4 text-muted">
+                        <p className="mb-4 text-white-50">
                             Subscribe to our newsletter to get the latest event updates and exclusive offers.
                         </p>
                         <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>

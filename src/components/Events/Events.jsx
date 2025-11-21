@@ -140,10 +140,10 @@ export default function Events() {
                 <AnimatedSection className="events-hero mb-5">
                     <div className="row justify-content-center">
                         <div className="col-lg-8">
-                            <h1 className="display-4 fw-bold mb-3 text-dark">
+                            <h1 className="display-4 fw-bold mb-3 text-white">
                                 Discover Campus Events
                             </h1>
-                            <p className="lead text-muted mb-4">
+                            <p className="lead text-white-50 mb-4">
                                 {data && data.stats.total_events > 0
                                     ? `Explore ${data.stats.total_events} exciting events happening around you.`
                                     : 'Join the community and create unforgettable memories.'}
@@ -158,14 +158,14 @@ export default function Events() {
                 {/* Search and Filter Section */}
                 <AnimatedSection delay={0.2} className="filter-card mb-5">
                     <div className="card-body">
-                        <h5 className="card-title mb-4 fw-bold text-dark">
+                        <h5 className="card-title mb-4 fw-bold text-white">
                             <i className="fas fa-filter text-primary me-2"></i>Filter Events
                         </h5>
                         <form className="row g-3" id="searchForm" onSubmit={handleSearchSubmit}>
                             <div className="col-md-4">
-                                <label htmlFor="search" className="form-label small fw-bold text-uppercase text-muted">Search</label>
+                                <label htmlFor="search" className="form-label small fw-bold text-uppercase text-white-50">Search</label>
                                 <div className="input-group">
-                                    <span className="input-group-text bg-white border-end-0"><i className="fas fa-search text-muted"></i></span>
+                                    <span className="input-group-text bg-dark border-secondary border-end-0"><i className="fas fa-search text-white-50"></i></span>
                                     <input type="text" className="form-control border-start-0 ps-0" id="search" name="search"
                                         value={search}
                                         onChange={e => setSearch(e.target.value)}
@@ -173,7 +173,7 @@ export default function Events() {
                                 </div>
                             </div>
                             <div className="col-md-3">
-                                <label htmlFor="category" className="form-label small fw-bold text-uppercase text-muted">Category</label>
+                                <label htmlFor="category" className="form-label small fw-bold text-uppercase text-white-50">Category</label>
                                 <select className="form-select" id="category" name="category"
                                     value={category}
                                     onChange={e => setCategory(e.target.value)}>
@@ -184,9 +184,9 @@ export default function Events() {
                                 </select>
                             </div>
                             <div className="col-md-3">
-                                <label htmlFor="location" className="form-label small fw-bold text-uppercase text-muted">Location</label>
+                                <label htmlFor="location" className="form-label small fw-bold text-uppercase text-white-50">Location</label>
                                 <div className="input-group">
-                                    <span className="input-group-text bg-white border-end-0"><i className="fas fa-map-marker-alt text-muted"></i></span>
+                                    <span className="input-group-text bg-dark border-secondary border-end-0"><i className="fas fa-map-marker-alt text-white-50"></i></span>
                                     <input type="text" className="form-control border-start-0 ps-0" id="location" name="location"
                                         value={location}
                                         onChange={e => setLocation(e.target.value)}
@@ -209,7 +209,7 @@ export default function Events() {
                                     className="mt-4"
                                 >
                                     <div className="d-flex align-items-center flex-wrap gap-2">
-                                        <small className="text-muted me-2">Active Filters:</small>
+                                        <small className="text-white-50 me-2">Active Filters:</small>
                                         {queryParams.search && (
                                             <span className="filter-tag">
                                                 Search: "{queryParams.search}"
@@ -240,14 +240,14 @@ export default function Events() {
 
                 {/* Results Header */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                    <p className="text-muted mb-0">
+                    <p className="text-white-50 mb-0">
                         {data && data.stats.total_events > 0 ? (
                             <>Showing <strong>{data.stats.showing}</strong> of <strong>{data.stats.total_events}</strong> events</>
                         ) : "No events found"}
                     </p>
                     <div className="dropdown sort-dropdown">
                         <button className="btn btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i className="fas fa-sort me-2 text-muted"></i>
+                            <i className="fas fa-sort me-2 text-white-50"></i>
                             {sortLabels[queryParams.sort] || 'Sort By'}
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0">
@@ -272,7 +272,7 @@ export default function Events() {
                     <AnimatedSection className="empty-state">
                         <div className="empty-state-icon"><i className="fas fa-calendar-times"></i></div>
                         <h3 className="mb-3">No Events Found</h3>
-                        <p className="text-muted mb-4">
+                        <p className="text-white-50 mb-4">
                             We couldn't find any events matching your criteria.
                         </p>
                         <button onClick={clearAllFilters} className="btn btn-outline-primary">
@@ -293,7 +293,7 @@ export default function Events() {
                 {!loading && data && data.pagination.total_pages > 1 && (
                     <AnimatedSection className="pagination-card mb-5">
                         <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                            <small className="text-muted">
+                            <small className="text-white-50">
                                 Page {data.pagination.page} of {data.pagination.total_pages}
                             </small>
                             <PaginationComponent

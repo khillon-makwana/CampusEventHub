@@ -162,7 +162,7 @@ export default function Profile() {
                                 <div className="mb-4">
                                     <label className="form-label">Full Name</label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-user"></i></span>
+                                        <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-user"></i></span>
                                         <input type="text" name="fullname" className="form-control border-start-0 ps-0"
                                             value={fullname} onChange={e => setFullname(e.target.value)} required />
                                     </div>
@@ -171,7 +171,7 @@ export default function Profile() {
                                 <div className="mb-4">
                                     <label className="form-label">Email Address</label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-envelope"></i></span>
+                                        <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-envelope"></i></span>
                                         <input type="email" className="form-control border-start-0 ps-0" value={user?.email || ''} readOnly />
                                     </div>
                                 </div>
@@ -237,7 +237,7 @@ export default function Profile() {
                                 <div className="mb-4">
                                     <label className="form-label">Current Password</label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-key"></i></span>
+                                        <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-key"></i></span>
                                         <input type="password" name="current_password" className="form-control border-start-0 ps-0"
                                             value={pwData.current_password} onChange={handlePwChange} required />
                                     </div>
@@ -246,17 +246,17 @@ export default function Profile() {
                                 <div className="mb-4">
                                     <label className="form-label">New Password</label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-lock"></i></span>
+                                        <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-lock"></i></span>
                                         <input type="password" name="new_password" className="form-control border-start-0 ps-0"
                                             value={pwData.new_password} onChange={handlePwChange} required />
                                     </div>
-                                    <small className="text-muted mt-1 d-block"><i className="fas fa-info-circle me-1"></i> Must be at least 6 characters</small>
+                                    <small className="text-white-50 mt-1 d-block"><i className="fas fa-info-circle me-1"></i> Must be at least 6 characters</small>
                                 </div>
 
                                 <div className="mb-4">
                                     <label className="form-label">Confirm New Password</label>
                                     <div className="input-group">
-                                        <span className="input-group-text bg-transparent border-end-0 text-secondary" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-check-double"></i></span>
+                                        <span className="input-group-text bg-transparent border-end-0 text-white-50" style={{ borderColor: 'var(--glass-border)' }}><i className="fas fa-check-double"></i></span>
                                         <input type="password" name="confirm_password" className="form-control border-start-0 ps-0"
                                             value={pwData.confirm_password} onChange={handlePwChange} required />
                                     </div>

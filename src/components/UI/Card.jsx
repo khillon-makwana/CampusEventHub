@@ -7,21 +7,26 @@ const Card = ({
     className = '',
     hover = false,
     glass = false,
-    padding = 'md',
+    holographic = false,
     onClick
 }) => {
-    const baseClass = 'card-ui';
+    // Use the new global utility classes
+    const baseClass = glass || holographic ? 'glass-panel' : 'bg-white shadow-sm border';
+    const hoverClass = hover ? 'cursor-pointer' : '';
+
+    // Combine classes
     const classes = `
+        rounded-4 p-4
         ${baseClass} 
-        ${glass ? 'card-ui-glass' : 'card-ui-surface'} 
-        card-ui-p-${padding}
+        ${hoverClass}
         ${className}
     `;
 
     const variants = hover ? {
         hover: {
-            y: -5,
-            boxShadow: 'var(--shadow-xl)',
+            y: -8,
+            boxShadow: 'var(--shadow-neon)',
+            borderColor: 'rgba(124, 58, 237, 0.5)',
             transition: { type: 'spring', stiffness: 300 }
         }
     } : {};

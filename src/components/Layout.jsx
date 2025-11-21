@@ -77,7 +77,7 @@ export default function Layout({ children, hideNav, hideFooter }) {
         return (
             <div className="layout-loading">
                 <div className="spinner-premium mb-3"></div>
-                <p className="text-muted small letter-spacing-2">LOADING EXPERIENCE</p>
+                <p className="text-white-50 small letter-spacing-2">LOADING EXPERIENCE</p>
             </div>
         );
     }

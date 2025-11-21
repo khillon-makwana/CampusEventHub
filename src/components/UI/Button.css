@@ -1,82 +1,70 @@
 /* src/components/UI/Button.css */
 
-.btn-ui {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 0.75rem;
-    font-family: var(--font-sans);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    gap: 0.5rem;
-    position: relative;
-    overflow: hidden;
-}
+/* Base styles are handled by .btn-custom in index.css */
 
-.btn-ui:disabled {
+.btn-custom:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* Variants */
-.btn-ui-primary {
+.btn-primary {
     background: var(--primary-600);
     color: white;
     box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
 }
 
-.btn-ui-primary:hover:not(:disabled) {
+.btn-primary:hover:not(:disabled) {
     background: var(--primary-700);
     box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
 }
 
-.btn-ui-secondary {
+.btn-secondary {
     background: var(--secondary-500);
     color: white;
     box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.2);
 }
 
-.btn-ui-secondary:hover:not(:disabled) {
+.btn-secondary:hover:not(:disabled) {
     background: var(--secondary-600);
     box-shadow: 0 10px 15px -3px rgba(244, 63, 94, 0.3);
 }
 
-.btn-ui-outline {
+.btn-outline {
     background: transparent;
-    border: 2px solid var(--slate-200);
-    color: var(--slate-600);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-main);
 }
 
-.btn-ui-outline:hover:not(:disabled) {
-    border-color: var(--primary-600);
-    color: var(--primary-600);
-    background: var(--primary-50);
+.btn-outline:hover:not(:disabled) {
+    border-color: var(--primary-500);
+    color: white;
+    background: rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 15px var(--primary-glow);
 }
 
-.btn-ui-ghost {
+.btn-ghost {
     background: transparent;
-    color: var(--slate-600);
+    color: var(--text-muted);
 }
 
-.btn-ui-ghost:hover:not(:disabled) {
-    background: var(--slate-100);
-    color: var(--slate-900);
+.btn-ghost:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
 }
 
 /* Sizes */
-.btn-ui-sm {
+.btn-sm {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
 }
 
-.btn-ui-md {
+.btn-md {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
 }
 
-.btn-ui-lg {
+.btn-lg {
     padding: 1rem 2rem;
     font-size: 1.125rem;
 }
